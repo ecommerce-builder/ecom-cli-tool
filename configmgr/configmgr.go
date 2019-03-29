@@ -97,15 +97,15 @@ func ensureConfigFileExists() error {
 	return nil
 }
 
-// ReadCurrentConfigurationName returns the contents of the CURRENT_PROJECT file
-func ReadCurrentConfigurationName() (string, error) {
+// ReadCurrentConfigName returns the contents of the CURRENT_PROJECT
+// file. If the CURRENT_PROJECT file does not exists (for example, the
+// first time the program is run), an empty file will be created.
+func ReadCurrentConfigName() (string, error) {
 	configDir, err := ensureConfigDirExists()
 	if err != nil {
 		return "", errors.Wrap(err, "ensure config dir exists failed")
 	}
 	cpf := filepath.Join(*configDir, "CURRENT_PROJECT")
-
-	// make sure the CURRENT_PROJECT file exists
 	exists, err := exists(cpf)
 	if err != nil {
 		return "", errors.Wrapf(err, "exists(%s) failed", cpf)
@@ -113,18 +113,14 @@ func ReadCurrentConfigurationName() (string, error) {
 	if !exists {
 		f, err := os.Create(cpf)
 		if err != nil {
-			return "", errors.Wrapf(err, "create(%q) failed", cpf)
+			return "", errors.Wrapf(err, "create file %q failed", cpf)
 		}
 		defer f.Close()
-		_, err = f.WriteString("")
-		if err != nil {
-			return "", errors.Wrapf(err, "write string to file %q failed", cpf)
-		}
+		return "", nil
 	}
-
 	bs, err := ioutil.ReadFile(cpf)
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to read file %q", cpf)
+		return "", errors.Wrapf(err, "read file %q failed", cpf)
 	}
 	return string(bs), nil
 }

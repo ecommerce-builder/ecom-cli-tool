@@ -31,7 +31,7 @@ func initConfig() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	currentConfigName, err = configmgr.ReadCurrentConfigurationName()
+	currentConfigName, err = configmgr.ReadCurrentConfigName()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v", err)
 		os.Exit(1)
