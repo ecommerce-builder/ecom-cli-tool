@@ -14,8 +14,8 @@ import (
 // projectsListCmd represents the projectsList command
 var projectsRemoveCmd = &cobra.Command{
 	Use:   "remove",
-	Short: "Remove a project.",
-	Long:  `Removes a project and drops all credentials.`,
+	Short: "Remove a configuration",
+	Long:  `Removes a configuration dropping the credentials`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// build a slice of "Name (Endpoint)" strings
 		pl := make([]string, 0, 8)

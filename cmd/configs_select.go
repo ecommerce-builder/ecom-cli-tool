@@ -14,7 +14,7 @@ import (
 // projectsListCmd represents the projectsList command
 var projectsSelectCmd = &cobra.Command{
 	Use:   "select",
-	Short: "Select and change to a project.",
+	Short: "Select and change to a new configuration.",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		// build a slice of "Name (Endpoint)" strings

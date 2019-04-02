@@ -56,6 +56,17 @@ type SysInfo struct {
 	Env        sysInfoEnv `json:"env"`
 }
 
+// Customer details
+type Customer struct {
+	CustomerUUID string    `json:"customer_uuid"`
+	UID          string    `json:"uid"`
+	Email        string    `json:"email"`
+	Firstname    string    `json:"firstname"`
+	Lastname     string    `json:"lastname"`
+	Created      time.Time `json:"created"`
+	Modified     time.Time `json:"modified"`
+}
+
 type devKeyRequest struct {
 	Key string `json:"key"`
 }
@@ -133,7 +144,7 @@ type ertBadRequestResponse struct {
 func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 	file, err := configmgr.TokenFilename(cfg)
 	if err != nil {
-		return errors.Wrapf(err, "token file %q cannot be found", file)
+		return errors.Wrapf(err, "token file %q not found", file)
 	}
 	tar, err := configmgr.ReadTokenAndRefreshToken(file)
 	if err != nil {
@@ -342,4 +353,29 @@ func (c *EcomClient) SysInfo() (*SysInfo, error) {
 		return nil, errors.Wrapf(err, "failed to decode url %s", uri)
 	}
 	return &sysInfo, nil
+}
+
+func (c *EcomClient) ListCustomers() ([]*Customer, error) {
+	uri := c.endpoint + "/customers"
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "http new request failed")
+	}
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.jwt)
+	res, err := c.client.Do(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "HTTP GET to %v failed", uri)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode >= 400 {
+		return nil, errors.Wrapf(err, "%s", res.Status)
+	}
+
+	var customers []*Customer
+	if err := json.NewDecoder(res.Body).Decode(&customers); err != nil {
+		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
+	}
+	return customers, nil
 }

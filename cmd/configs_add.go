@@ -13,7 +13,7 @@ import (
 // projectsListCmd represents the projectsList command
 var projectsAddCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add a new project",
+	Short: "Add a new configuration",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		name, webKey, endpoint, devKey, err := promptAddConfiguration()

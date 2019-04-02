@@ -114,6 +114,7 @@ func URLToHostName(u string) (string, error) {
 // TokenFilename returns the full filepath of the file corresponding
 // to the given EcomConfigEntry.
 func TokenFilename(e *EcomConfigEntry) (string, error) {
+	fmt.Printf("%+v", e)
 	hd, err := homeDir()
 	if err != nil {
 		return "", errors.Wrapf(err, "homeDir() failed")
@@ -131,7 +132,7 @@ func TokenFilename(e *EcomConfigEntry) (string, error) {
 	}
 
 	if !exists {
-		return "", fmt.Errorf("token file %q does not exist", tokenFile)
+		return "", fmt.Errorf("token file %q not found", tokenFile)
 	}
 
 	return tokenFile, nil
@@ -169,11 +170,12 @@ func ReadCurrentConfigName() (string, error) {
 	return string(bs), nil
 }
 
-// ReadConfig opens and read the .ecomrc file putting each section name in a map of EcomConfigEntrys.
+// ReadConfig opens and read the .ecomrc.yaml file putting each section
+// name in a map of EcomConfigEntrys.
 func ReadConfig() (*EcomConfigurations, error) {
 	err := ensureConfigFileExists()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to ensure config file exists")
+		return nil, errors.Wrap(err, "ensure config file exists failed")
 	}
 	viper.SetConfigName(".ecomrc")
 	viper.SetConfigType("yaml")
@@ -184,12 +186,12 @@ func ReadConfig() (*EcomConfigurations, error) {
 	viper.AddConfigPath(hd)
 	viper.ReadInConfig()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read in config file")
+		return nil, errors.Wrap(err, "read in config file failed")
 	}
 	configurations := EcomConfigurations{}
 	err = viper.Unmarshal(&configurations)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to unmarshal")
+		return nil, errors.Wrap(err, "unmarshal configurations failed")
 	}
 	return &configurations, nil
 }
@@ -236,7 +238,7 @@ func DeleteProject(filename string) (bool, error) {
 		return false, errors.Wrapf(err, "failed exists(%q)", filepath)
 	}
 	if !exists {
-		return false, fmt.Errorf("filename %q does not exist", filepath)
+		return false, fmt.Errorf("filename %q not found", filepath)
 	}
 	err = os.Remove(filepath)
 	if err != nil {
@@ -248,22 +250,13 @@ func DeleteProject(filename string) (bool, error) {
 // ReadTokenAndRefreshToken reads the token and refresh token from the filesystem
 // or returns nil if the file has not yet been created.
 func ReadTokenAndRefreshToken(fp string) (*TokenAndRefreshToken, error) {
-	// hd, err := homeDir()
-	// if err != nil {
-	// 	return nil, errors.Wrapf(err, "homeDir() failed")
-	// }
-	// err = ensureConfigDirExists()
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "couldn't ensure config dir exists")
-	// }
-	// fp := filepath.Join(hd, configDir, filename)
 	exists, err := exists(fp)
 	if err != nil {
 		return nil, errors.Wrapf(err, "exists(%s) failed", fp)
 	}
 
 	if !exists {
-		return nil, fmt.Errorf("token file %q does not exist", fp)
+		return nil, errors.Wrapf(err, "token file %q not found", fp)
 	}
 
 	f, err := os.Open(fp)
