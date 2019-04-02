@@ -1,10 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
 )
@@ -15,15 +11,12 @@ var signoutCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		webKey, endpoint, err := promptSignOut()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v", err)
-			os.Exit(1)
-		}
+		// webKey, endpoint, err := promptSignOut()
+		// if err != nil {
+		// 	fmt.Fprintf(os.Stderr, "%v", err)
+		// 	os.Exit(1)
+		// }
 
-		hostname, err := eclient.URLToHostName(endpoint)
-		filename := fmt.Sprintf("%s-%s", webKey, hostname)
-		fmt.Println(filename)
 		// exists, err := configmgr.Exists(filename)
 		// if err != nil {
 		// 	fmt.Fprintf(os.Stderr, "%v\n", err)

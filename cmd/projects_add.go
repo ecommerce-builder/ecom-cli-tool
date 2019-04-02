@@ -16,16 +16,11 @@ var projectsAddCmd = &cobra.Command{
 	Short: "Add a new project",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("projectsAdd called")
-		fmt.Printf("%+v", rc.Configurations)
-
 		name, webKey, endpoint, devKey, err := promptAddConfiguration()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(1)
 		}
-		hostname, err := eclient.URLToHostName(endpoint)
-		filename := fmt.Sprintf("%s-%s", webKey, hostname)
 
 		ecomClient := eclient.NewEcomClient(webKey, endpoint, timeout)
 		customToken, err := ecomClient.SignInWithDevKey(devKey)
@@ -39,7 +34,7 @@ var projectsAddCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		configmgr.WriteTokenAndRefreshToken(filename, tar)
+		configmgr.WriteTokenAndRefreshToken(webKey, endpoint, tar)
 
 		if rc.Configurations == nil {
 			rc.Configurations = make(map[string]configmgr.EcomConfigEntry)

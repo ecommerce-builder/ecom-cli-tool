@@ -43,7 +43,7 @@ var signinCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		hostname, err := eclient.URLToHostName(endpoint)
+		hostname, err := configmgr.URLToHostName(endpoint)
 		filename := fmt.Sprintf("%s-%s", webKey, hostname)
 		fmt.Println(filename)
 		fmt.Println(name)
@@ -81,7 +81,7 @@ var signinCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		configmgr.WriteTokenAndRefreshToken(filename, tar)
+		configmgr.WriteTokenAndRefreshToken(webKey, endpoint, tar)
 	},
 }
 

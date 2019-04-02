@@ -7,9 +7,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
+	"bitbucket.org/andyfusniakteam/ecom-cli-tool/configmgr"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
 )
 
@@ -82,21 +85,6 @@ func (c *EcomClient) SetJWT(jwt string) {
 	c.jwt = jwt
 }
 
-// URLToHostName converts a standard URL string to hostname replacing the dot character with underscores.
-func URLToHostName(u string) (string, error) {
-	url, err := url.Parse(u)
-	if err != nil {
-		return "", errors.Wrapf(err, "failed to parse url %q", u)
-	}
-	return strings.ReplaceAll(url.Hostname(), ".", "_"), nil
-}
-
-// TokenAndRefreshToken contains the latest token (1hr expiration) and refresh token (last indefinitely).
-type TokenAndRefreshToken struct {
-	IDToken      string `json:"idToken"`
-	RefreshToken string `json:"refreshToken"`
-}
-
 // See https://firebase.google.com/docs/reference/rest/auth/#section-verify-custom-token
 // token	      string   A Firebase Auth custom token from which to create an ID and refresh token pair.
 // returnSecureToken  boolean  Whether or not to return an ID and refresh token. Should always be true.
@@ -138,6 +126,40 @@ type ertBadRequestResponse struct {
 	} `json:"error"`
 }
 
+// SetToken accepts an EcomConfigEntry and derives the token and refresh
+// token file, before reading it, inspecting it and if necessary generating
+// a refresh token, before writing back the file. The token is then stored
+// in the EcomClient struct.
+func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
+	file, err := configmgr.TokenFilename(cfg)
+	if err != nil {
+		return errors.Wrapf(err, "token file %q cannot be found", file)
+	}
+	tar, err := configmgr.ReadTokenAndRefreshToken(file)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "tokenand refresh token cannot be read from %q: %v", file, err)
+		os.Exit(1)
+	}
+	var p jwt.Parser
+	t, _, err := p.ParseUnverified(tar.IDToken, &jwt.StandardClaims{})
+	claims := t.Claims.(*jwt.StandardClaims)
+	utcNow := time.Now().Unix()
+
+	// If the token has expired, use the refresh token to get another
+	if claims.ExpiresAt-utcNow <= 0 {
+		tar, err = c.ExchangeRefreshTokenForIDToken(tar.RefreshToken)
+		if err != nil {
+			return errors.Wrap(err, "exchange refresh token for id token failed")
+		}
+		err = configmgr.WriteTokenAndRefreshToken(cfg.FirebaseAPIKey, cfg.Endpoint, tar)
+		if err != nil {
+			return errors.Wrap(err, "write token and refresh token failed")
+		}
+	}
+	c.jwt = tar.IDToken
+	return nil
+}
+
 // ExchangeRefreshTokenForIDToken calls Google's REST API.
 // Response Payload
 // Property Name	Type	Description
@@ -147,7 +169,7 @@ type ertBadRequestResponse struct {
 // id_token	string	A Firebase Auth ID token.
 // user_id	string	The uid corresponding to the provided ID token.
 // project_id	string	Your Firebase project ID.
-func (c *EcomClient) ExchangeRefreshTokenForIDToken(refreshToken string) (*TokenAndRefreshToken, error) {
+func (c *EcomClient) ExchangeRefreshTokenForIDToken(refreshToken string) (*configmgr.TokenAndRefreshToken, error) {
 	v := url.Values{}
 	v.Set("key", c.firebaseAPIKey)
 	uri := url.URL{
@@ -190,14 +212,14 @@ func (c *EcomClient) ExchangeRefreshTokenForIDToken(refreshToken string) (*Token
 	if err != nil {
 		return nil, errors.Wrap(err, "json ecode error")
 	}
-	return &TokenAndRefreshToken{
+	return &configmgr.TokenAndRefreshToken{
 		IDToken:      response.IDToken,
 		RefreshToken: response.RefreshToken,
 	}, nil
 }
 
 // ExchangeCustomTokenForIDAndRefreshToken calls the Firebase REST API to exchange a customer token for Firebase token and refresh token.
-func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(customToken string) (*TokenAndRefreshToken, error) {
+func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(customToken string) (*configmgr.TokenAndRefreshToken, error) {
 	// build the URL including Query params
 	v := url.Values{}
 	v.Set("key", c.firebaseAPIKey)
@@ -256,7 +278,7 @@ func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(customToken string)
 	if err != nil {
 		return nil, errors.Wrap(err, "json decode failed")
 	}
-	return &TokenAndRefreshToken{
+	return &configmgr.TokenAndRefreshToken{
 		IDToken:      tokenResponse.IDToken,
 		RefreshToken: tokenResponse.RefreshToken,
 	}, nil
@@ -301,13 +323,13 @@ func (c *EcomClient) SysInfo() (*SysInfo, error) {
 	uri := c.endpoint + "/sysinfo"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		return nil, fmt.Errorf("error creating new GET request: %v", err)
+		return nil, errors.Wrap(err, "http new request failed")
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.jwt)
 	res, err := c.client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error executing HTTP GET to %v : %v", uri, err)
+		return nil, errors.Wrapf(err, "HTTP GET to %v failed", uri)
 	}
 	defer res.Body.Close()
 

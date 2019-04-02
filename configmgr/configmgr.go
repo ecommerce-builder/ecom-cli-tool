@@ -4,14 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"os/user"
 	"path/filepath"
+	"strings"
 
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/eclient"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
+
+type TokenAndRefreshToken struct {
+	IDToken      string `json:"idToken"`
+	RefreshToken string `json:"refreshToken"`
+}
 
 // EcomConfigEntry represents a single configuration set.
 type EcomConfigEntry struct {
@@ -33,9 +39,8 @@ const (
 func homeDir() (string, error) {
 	usr, err := user.Current()
 	if err != nil {
-		return "", fmt.Errorf("failed user.Current(): %v", err)
+		return "", fmt.Errorf("user.Current() failed: %v", err)
 	}
-
 	return usr.HomeDir, nil
 }
 
@@ -50,25 +55,25 @@ func exists(path string) (bool, error) {
 	return true, err
 }
 
-func ensureConfigDirExists() (*string, error) {
+func ensureConfigDirExists() error {
 	hd, err := homeDir()
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed homeDir()")
+		return errors.Wrapf(err, "failed homeDir()")
 	}
-	configDir := filepath.Join(hd, configDir)
+	cfgDir := filepath.Join(hd, configDir)
 
-	exists, err := exists(configDir)
+	exists, err := exists(cfgDir)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed exists(%s)", configDir)
+		return errors.Wrapf(err, "failed exists(%s)", configDir)
 	}
 	if !exists {
-		os.Mkdir(configDir, 0755)
+		os.Mkdir(cfgDir, 0755)
 		err = WriteCurrentProject("")
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed write current project %q", "")
+			return errors.Wrapf(err, "failed write current project %q", "")
 		}
 	}
-	return &configDir, nil
+	return nil
 }
 
 func ensureConfigFileExists() error {
@@ -97,15 +102,54 @@ func ensureConfigFileExists() error {
 	return nil
 }
 
+// URLToHostName converts a standard URL string to hostname replacing the dot character with underscores.
+func URLToHostName(u string) (string, error) {
+	url, err := url.Parse(u)
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to parse url %q", u)
+	}
+	return strings.ReplaceAll(url.Hostname(), ".", "_"), nil
+}
+
+// TokenFilename returns the full filepath of the file corresponding
+// to the given EcomConfigEntry.
+func TokenFilename(e *EcomConfigEntry) (string, error) {
+	hd, err := homeDir()
+	if err != nil {
+		return "", errors.Wrapf(err, "homeDir() failed")
+	}
+
+	hostname, err := URLToHostName(e.Endpoint)
+	if err != nil {
+		return "", errors.Wrapf(err, "url to hostname failed for %q", e.Endpoint)
+	}
+	file := fmt.Sprintf("%s-%s", e.FirebaseAPIKey, hostname)
+	tokenFile := filepath.Join(hd, configDir, file)
+	exists, err := exists(tokenFile)
+	if err != nil {
+		return "", errors.Wrapf(err, "exists(%s) failed", tokenFile)
+	}
+
+	if !exists {
+		return "", fmt.Errorf("token file %q does not exist", tokenFile)
+	}
+
+	return tokenFile, nil
+}
+
 // ReadCurrentConfigName returns the contents of the CURRENT_PROJECT
 // file. If the CURRENT_PROJECT file does not exists (for example, the
 // first time the program is run), an empty file will be created.
 func ReadCurrentConfigName() (string, error) {
-	configDir, err := ensureConfigDirExists()
+	hd, err := homeDir()
+	if err != nil {
+		return "", errors.Wrapf(err, "homeDir() failed")
+	}
+	err = ensureConfigDirExists()
 	if err != nil {
 		return "", errors.Wrap(err, "ensure config dir exists failed")
 	}
-	cpf := filepath.Join(*configDir, "CURRENT_PROJECT")
+	cpf := filepath.Join(hd, configDir, "CURRENT_PROJECT")
 	exists, err := exists(cpf)
 	if err != nil {
 		return "", errors.Wrapf(err, "exists(%s) failed", cpf)
@@ -138,34 +182,15 @@ func ReadConfig() (*EcomConfigurations, error) {
 		return nil, err
 	}
 	viper.AddConfigPath(hd)
-
 	viper.ReadInConfig()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read in config file")
 	}
-
-	//configs := vp.GetStringMap("configurations")
-
-	//fmt.Printf("%+v\n", configs)
-
 	configurations := EcomConfigurations{}
 	err = viper.Unmarshal(&configurations)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal")
 	}
-
-	//
-	// for _, s := range cfg.Sections() {
-	// 	if s.Name() == "DEFAULT" {
-	// 		continue
-	// 	}
-	// 	ecomCfg[s.Name()] = EcomConfigEntry{
-	// 		Name:           s.Key("name").String(),
-	// 		FirebaseAPIKey: s.Key("firebase_api_key").String(),
-	// 		DevKey:         s.Key("developer_key").String(),
-	// 		Endpoint:       s.Key("endpoint").String(),
-	// 	}
-	// }
 	return &configurations, nil
 }
 
@@ -181,12 +206,15 @@ func WriteConfig(cfgs *EcomConfigurations) error {
 
 // WriteCurrentProject records the project API Key on the filesystem within the $HOME/.ecom directory in a file called CURRENT_API_KEY. The current API Key context is read between invocation of the command-line tool.
 func WriteCurrentProject(name string) error {
-	configDir, err := ensureConfigDirExists()
+	err := ensureConfigDirExists()
 	if err != nil {
 		return errors.Wrap(err, "couldn't ensure config dir exists")
 	}
-
-	cpf := filepath.Join(*configDir, "CURRENT_PROJECT")
+	hd, err := homeDir()
+	if err != nil {
+		return errors.Wrap(err, "failed to get home directory")
+	}
+	cpf := filepath.Join(hd, configDir, "CURRENT_PROJECT")
 	bs := []byte(name)
 	err = ioutil.WriteFile(cpf, bs, 0644)
 	if err != nil {
@@ -219,52 +247,61 @@ func DeleteProject(filename string) (bool, error) {
 
 // ReadTokenAndRefreshToken reads the token and refresh token from the filesystem
 // or returns nil if the file has not yet been created.
-func ReadTokenAndRefreshToken(filename string) (*eclient.TokenAndRefreshToken, error) {
-	configDir, err := ensureConfigDirExists()
+func ReadTokenAndRefreshToken(fp string) (*TokenAndRefreshToken, error) {
+	// hd, err := homeDir()
+	// if err != nil {
+	// 	return nil, errors.Wrapf(err, "homeDir() failed")
+	// }
+	// err = ensureConfigDirExists()
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "couldn't ensure config dir exists")
+	// }
+	// fp := filepath.Join(hd, configDir, filename)
+	exists, err := exists(fp)
 	if err != nil {
-		return nil, errors.Wrap(err, "couldn't ensure config dir exists")
-	}
-
-	filepath := filepath.Join(*configDir, filename)
-	exists, err := exists(filepath)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed exists(%s)", filepath)
+		return nil, errors.Wrapf(err, "exists(%s) failed", fp)
 	}
 
 	if !exists {
-		return nil, nil
+		return nil, fmt.Errorf("token file %q does not exist", fp)
 	}
 
-	f, err := os.Open(filepath)
+	f, err := os.Open(fp)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to open file %q", filepath)
+		return nil, errors.Wrapf(err, "failed to open file %q", fp)
 	}
 	defer f.Close()
 
-	var tar eclient.TokenAndRefreshToken
+	var tar TokenAndRefreshToken
 	json.NewDecoder(f).Decode(&tar)
 	return &tar, nil
 }
 
 // WriteTokenAndRefreshToken writes a copy of the token and refresh token to the file system
-func WriteTokenAndRefreshToken(filename string, tar *eclient.TokenAndRefreshToken) error {
-	cfgDir, err := ensureConfigDirExists()
+func WriteTokenAndRefreshToken(webKey, endpoint string, tar *TokenAndRefreshToken) error {
+	err := ensureConfigDirExists()
 	if err != nil {
 		return errors.Wrap(err, "couldn't ensure config dir exists")
 	}
 
-	filepath := filepath.Join(*cfgDir, filename)
+	hostname, err := URLToHostName(endpoint)
+	filename := fmt.Sprintf("%s-%s", webKey, hostname)
+
+	hd, err := homeDir()
+	if err != nil {
+		return errors.Wrap(err, "failed to get home directory")
+	}
+	filepath := filepath.Join(hd, configDir, filename)
 
 	f, err := os.Create(filepath)
 	if err != nil {
-		return errors.Wrapf(err, "failed to open file %q", filepath)
+		return errors.Wrapf(err, "create file %q failed", filepath)
 	}
 	defer f.Close()
 
 	err = json.NewEncoder(f).Encode(tar)
 	if err != nil {
-		return errors.Wrapf(err, "failed to encode token")
+		return errors.Wrapf(err, "json encode token failed")
 	}
-
 	return nil
 }

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"bitbucket.org/andyfusniakteam/ecom-cli-tool/configmgr"
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/eclient"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -32,7 +31,7 @@ var projectsRemoveCmd = &cobra.Command{
 		if remove {
 			p := rc.Configurations[name]
 
-			hostname, err := eclient.URLToHostName(p.Endpoint)
+			hostname, err := configmgr.URLToHostName(p.Endpoint)
 			filename := fmt.Sprintf("%s-%s", p.FirebaseAPIKey, hostname)
 
 			ok, err := configmgr.DeleteProject(filename)
