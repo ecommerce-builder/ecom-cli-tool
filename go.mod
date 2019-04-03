@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	bitbucket.org/andyfusniakteam/capturoo-cli-go v0.0.0-20181113231955-66ae4adb8081
+	bitbucket.org/andyfusniakteam/ecom-api-go v0.17.0
 	github.com/Netflix/go-expect v0.0.0-20180928190340-9d1f4485533b // indirect
 	github.com/briandowns/spinner v0.0.0-20190319032542-ac46072a5a91 // indirect
 	github.com/coreos/etcd v3.3.12+incompatible // indirect
@@ -30,7 +31,6 @@ require (
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.3.2
-	github.com/stretchr/testify v1.3.0 // indirect
 	github.com/ugorji/go/codec v0.0.0-20190320090025-2dc34c0b8780 // indirect
 	golang.org/x/arch v0.0.0-20190312162104-788fe5ffcd8c // indirect
 	golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c // indirect

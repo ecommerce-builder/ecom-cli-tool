@@ -114,7 +114,6 @@ func URLToHostName(u string) (string, error) {
 // TokenFilename returns the full filepath of the file corresponding
 // to the given EcomConfigEntry.
 func TokenFilename(e *EcomConfigEntry) (string, error) {
-	fmt.Printf("%+v", e)
 	hd, err := homeDir()
 	if err != nil {
 		return "", errors.Wrapf(err, "homeDir() failed")
@@ -201,7 +200,7 @@ func WriteConfig(cfgs *EcomConfigurations) error {
 	viper.Set("configurations", cfgs.Configurations)
 	err := viper.WriteConfig()
 	if err != nil {
-		return errors.Wrap(err, "failed to write config file")
+		return errors.Wrap(err, "write config file failed")
 	}
 	return nil
 }
@@ -220,7 +219,7 @@ func WriteCurrentProject(name string) error {
 	bs := []byte(name)
 	err = ioutil.WriteFile(cpf, bs, 0644)
 	if err != nil {
-		return errors.Wrap(err, "failed to write CURRENT_PROJECT file")
+		return errors.Wrap(err, "write CURRENT_PROJECT file failed")
 	}
 	return nil
 }

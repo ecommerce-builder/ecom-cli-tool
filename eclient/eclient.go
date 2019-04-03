@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"bitbucket.org/andyfusniakteam/ecom-api-go/utils/nestedset"
 	"bitbucket.org/andyfusniakteam/ecom-cli-tool/configmgr"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
@@ -378,4 +379,31 @@ func (c *EcomClient) ListCustomers() ([]*Customer, error) {
 		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
 	}
 	return customers, nil
+}
+
+// GetCatalog returns a slice of NestedSetNodes.
+func (c *EcomClient) GetCatalog() ([]*nestedset.NestedSetNode, error) {
+	uri := c.endpoint + "/catalog"
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "http new request failed")
+	}
+
+	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", "Bearer "+c.jwt)
+	res, err := c.client.Do(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "http do to %v failed", uri)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode >= 400 {
+		return nil, errors.Wrapf(err, "%s", res.Status)
+	}
+
+	var nodes []*nestedset.NestedSetNode
+	if err := json.NewDecoder(res.Body).Decode(&nodes); err != nil {
+		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
+	}
+	return nodes, nil
 }
