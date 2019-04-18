@@ -356,6 +356,7 @@ func (c *EcomClient) SysInfo() (*SysInfo, error) {
 	return &sysInfo, nil
 }
 
+// ListCustomers call the API Service to retreieve a list of customers.
 func (c *EcomClient) ListCustomers() ([]*Customer, error) {
 	uri := c.endpoint + "/customers"
 	req, err := http.NewRequest("GET", uri, nil)
