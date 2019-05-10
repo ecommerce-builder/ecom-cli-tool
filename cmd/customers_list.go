@@ -16,13 +16,13 @@ var customersListCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		current := rc.Configurations[currentConfigName]
-		ecomClient := eclient.NewEcomClient(current.FirebaseAPIKey, current.Endpoint, timeout)
-		err := ecomClient.SetToken(&current)
+		client := eclient.NewEcomClient(current.FirebaseAPIKey, current.Endpoint, timeout)
+		err := client.SetToken(&current)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		customers, err := ecomClient.ListCustomers()
+		customers, err := client.ListCustomers()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(1)
