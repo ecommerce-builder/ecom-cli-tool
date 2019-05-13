@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/andyfusniakteam/ecom-api-go/utils/nestedset"
+	"bitbucket.org/andyfusniakteam/ecom-api-go/service/firebase"
 	"bitbucket.org/andyfusniakteam/ecom-cli-tool/configmgr"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/pkg/errors"
@@ -357,7 +357,7 @@ func (c *EcomClient) SysInfo() (*SysInfo, error) {
 }
 
 // GetCatalog returns a slice of NestedSetNodes.
-func (c *EcomClient) GetCatalog() ([]*nestedset.NestedSetNode, error) {
+func (c *EcomClient) GetCatalog() (*firebase.Category, error) {
 	uri := c.endpoint + "/catalog"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
@@ -376,9 +376,9 @@ func (c *EcomClient) GetCatalog() ([]*nestedset.NestedSetNode, error) {
 		return nil, errors.Wrapf(err, "%s", res.Status)
 	}
 
-	var nodes []*nestedset.NestedSetNode
-	if err := json.NewDecoder(res.Body).Decode(&nodes); err != nil {
+	var tree *firebase.Category
+	if err := json.NewDecoder(res.Body).Decode(&tree); err != nil {
 		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
 	}
-	return nodes, nil
+	return tree, nil
 }
