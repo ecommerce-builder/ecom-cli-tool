@@ -8,7 +8,6 @@ import (
 var catalogCmd = &cobra.Command{
 	Use:   "catalog",
 	Short: "Catalog management",
-	Long:  ``,
 }
 
 func init() {
