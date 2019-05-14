@@ -32,28 +32,14 @@ var catalogApplyCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		type Category struct {
-			URL        string     `yaml:"url"`
-			Name       string     `yaml:"name"`
-			Categories []Category `yaml:"categories"`
-		}
-		
-		type Categories struct {
-			Categories []Category `yaml:"categories"`
-		}
-
-		type Catalog struct {
-			Catalog Categories `yaml:"catalog"`
-		}
-
-		var cat Catalog
-		err = yaml.Unmarshal([]byte(data), &cat)
+		var catalog eclient.Catalog
+		err = yaml.Unmarshal([]byte(data), &catalog)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}
-
-		for _, n := range cat.Catalog.Categories {
-			fmt.Println(n)
+		err = client.UpdateCatalog(catalog.Category)
+		if err != nil {
+			log.Fatal(err)
 		}
 	},
 }

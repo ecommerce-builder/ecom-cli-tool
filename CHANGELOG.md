@@ -1,4 +1,7 @@
 ## CHANGELOG
+## v0.3.0 (Tue 14 May 2019)
++ `ecom catalog apply <catalog.yaml>` to replace the entire catalog.
++ `ecom catalog purge` to purge the entire catalog.
 
 ## v0.2.0 (Mon 13 May 2019)
 + Compatible with API v0.28.4
