@@ -19,7 +19,7 @@ var productsGetCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		current := rc.Configurations[currentConfigName]
-		ecomClient := eclient.NewEcomClient(current.FirebaseAPIKey, current.Endpoint, timeout)
+		ecomClient := eclient.New(current.Endpoint, timeout)
 		err := ecomClient.SetToken(&current)
 		if err != nil {
 			log.Fatal(err)

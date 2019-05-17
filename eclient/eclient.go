@@ -19,10 +19,9 @@ import (
 
 // EcomClient structure.
 type EcomClient struct {
-	firebaseAPIKey string
-	endpoint       string
-	client         *http.Client
-	jwt            string
+	endpoint string
+	client   *http.Client
+	jwt      string
 }
 
 type sysInfoPg struct {
@@ -77,8 +76,8 @@ type customToken struct {
 	CustomToken string `json:"custom_token"`
 }
 
-// NewEcomClient creates an EcomClient struct for interacting with the API Service
-func NewEcomClient(firebaseAPIKey, endpoint string, timeout time.Duration) *EcomClient {
+// New creates an EcomClient struct for interacting with the API Service
+func New(endpoint string, timeout time.Duration) *EcomClient {
 	tr := &http.Transport{
 		MaxIdleConnsPerHost: 10,
 	}
@@ -87,9 +86,8 @@ func NewEcomClient(firebaseAPIKey, endpoint string, timeout time.Duration) *Ecom
 		Timeout:   timeout,
 	}
 	return &EcomClient{
-		endpoint:       endpoint,
-		client:         client,
-		firebaseAPIKey: firebaseAPIKey,
+		endpoint: endpoint,
+		client:   client,
 	}
 }
 
@@ -160,11 +158,14 @@ func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 
 	// If the token has expired, use the refresh token to get another
 	if claims.ExpiresAt-utcNow <= 0 {
-		tar, err = c.ExchangeRefreshTokenForIDToken(tar.RefreshToken)
+		g, err := c.GetConfig()
+		tar, err = c.ExchangeRefreshTokenForIDToken(g.WebAPIKey, tar.RefreshToken)
 		if err != nil {
 			return errors.Wrap(err, "exchange refresh token for id token failed")
 		}
-		err = configmgr.WriteTokenAndRefreshToken(cfg.FirebaseAPIKey, cfg.Endpoint, tar)
+		hostname, err := configmgr.URLToHostName(cfg.Endpoint)
+		filename := fmt.Sprintf("%s-%s", hostname, cfg.DevKey[:6])
+		err = configmgr.WriteTokenAndRefreshToken(filename, tar)
 		if err != nil {
 			return errors.Wrap(err, "write token and refresh token failed")
 		}
@@ -182,9 +183,9 @@ func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 // id_token	string	A Firebase Auth ID token.
 // user_id	string	The uid corresponding to the provided ID token.
 // project_id	string	Your Firebase project ID.
-func (c *EcomClient) ExchangeRefreshTokenForIDToken(refreshToken string) (*configmgr.TokenAndRefreshToken, error) {
+func (c *EcomClient) ExchangeRefreshTokenForIDToken(firebaseAPIKey, refreshToken string) (*configmgr.TokenAndRefreshToken, error) {
 	v := url.Values{}
-	v.Set("key", c.firebaseAPIKey)
+	v.Set("key", firebaseAPIKey)
 	uri := url.URL{
 		Scheme:     "https",
 		Host:       "securetoken.googleapis.com",
@@ -192,7 +193,6 @@ func (c *EcomClient) ExchangeRefreshTokenForIDToken(refreshToken string) (*confi
 		ForceQuery: false,
 		RawQuery:   v.Encode(),
 	}
-
 	reqBody := exchangeRefreshTokenRequest{
 		GrantType:    "refresh_token",
 		RefreshToken: refreshToken,
@@ -219,7 +219,6 @@ func (c *EcomClient) ExchangeRefreshTokenForIDToken(refreshToken string) (*confi
 		}
 
 	}
-
 	response := exchangeRefreshTokenResponse{}
 	err = json.NewDecoder(res.Body).Decode(&response)
 	if err != nil {
@@ -232,10 +231,10 @@ func (c *EcomClient) ExchangeRefreshTokenForIDToken(refreshToken string) (*confi
 }
 
 // ExchangeCustomTokenForIDAndRefreshToken calls the Firebase REST API to exchange a customer token for Firebase token and refresh token.
-func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(customToken string) (*configmgr.TokenAndRefreshToken, error) {
+func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(firebaseAPIKey, customToken string) (*configmgr.TokenAndRefreshToken, error) {
 	// build the URL including Query params
 	v := url.Values{}
-	v.Set("key", c.firebaseAPIKey)
+	v.Set("key", firebaseAPIKey)
 	uri := url.URL{
 		Scheme:     "https",
 		Host:       "www.googleapis.com",
@@ -382,4 +381,32 @@ func (c *EcomClient) GetCatalog() (*firebase.Category, error) {
 		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
 	}
 	return tree, nil
+}
+
+// Goog holds the Google Project ID and Web API Key configuration values.
+type Goog struct {
+	ProjectID string `json:"ECOM_GOOGLE_PROJECT_ID"`
+	WebAPIKey string `json:"ECOM_GOOGLE_WEB_API_KEY"`
+}
+
+// GetConfig gets the Google Project ID and Google Web API Key from the
+// server. HTTP GET /configs is a public resource and requires no
+// authorization or token.
+func (c *EcomClient) GetConfig() (*Goog, error) {
+	uri := c.endpoint + "/config"
+	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "http new request failed")
+	}
+	req.Header.Set("Accept", "application/json")
+	res, err := c.client.Do(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "http do to %v failed", uri)
+	}
+	defer res.Body.Close()
+	var g *Goog
+	if err := json.NewDecoder(res.Body).Decode(&g); err != nil {
+		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
+	}
+	return g, nil
 }

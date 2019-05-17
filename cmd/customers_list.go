@@ -16,7 +16,7 @@ var customersListCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		current := rc.Configurations[currentConfigName]
-		client := eclient.NewEcomClient(current.FirebaseAPIKey, current.Endpoint, timeout)
+		client := eclient.New(current.Endpoint, timeout)
 		err := client.SetToken(&current)
 		if err != nil {
 			log.Fatal(err)

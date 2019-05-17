@@ -13,10 +13,10 @@ var profilesListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "Display a list of available profiles",
 	Run: func(cmd *cobra.Command, args []string) {
-		format := "%v\t%v\t%v\t%v\t%v\t\n"
+		format := "%v\t%v\t%v\n"
 		tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
-		fmt.Fprintf(tw, format, "Name", "Active", "Endpoint", "Firebase API Key", "Dev Key")
-		fmt.Fprintf(tw, format, "----", "------", "--------", "----------------", "-------")
+		fmt.Fprintf(tw, format, "Active", "Endpoint", "Dev Key")
+		fmt.Fprintf(tw, format, "------", "--------", "-------")
 		for k, v := range rc.Configurations {
 			var active string
 			if currentConfigName == k {
@@ -24,7 +24,7 @@ var profilesListCmd = &cobra.Command{
 			} else {
 				active = ""
 			}
-			fmt.Fprintf(tw, format, k, active, v.Endpoint, v.FirebaseAPIKey, v.DevKey[0:5]+"********")
+			fmt.Fprintf(tw, format, active, v.Endpoint, v.DevKey[0:5]+"********")
 		}
 		tw.Flush()
 	},
