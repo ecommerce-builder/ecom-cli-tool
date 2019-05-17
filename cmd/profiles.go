@@ -4,13 +4,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// projectsCmd represents the projects command
-var projectsCmd = &cobra.Command{
-	Use:   "configs",
-	Short: "Configuration management",
+// profilesCmd represents the profiles command
+var profilesCmd = &cobra.Command{
+	Use:   "profiles",
+	Short: "Profile management",
 	Long:  ``,
 }
 
 func init() {
-	rootCmd.AddCommand(projectsCmd)
+	rootCmd.AddCommand(profilesCmd)
 }

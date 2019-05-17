@@ -8,11 +8,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// projectsListCmd represents the projectsList command
-var projectsListCmd = &cobra.Command{
+// profilesListCmd represents the profilesList command
+var profilesListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "Display a list of configurations available to this command line tool.",
-	Long:  ``,
+	Short: "Display a list of available profiles",
 	Run: func(cmd *cobra.Command, args []string) {
 		format := "%v\t%v\t%v\t%v\t%v\t\n"
 		tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
@@ -32,5 +31,5 @@ var projectsListCmd = &cobra.Command{
 }
 
 func init() {
-	projectsCmd.AddCommand(projectsListCmd)
+	profilesCmd.AddCommand(profilesListCmd)
 }
