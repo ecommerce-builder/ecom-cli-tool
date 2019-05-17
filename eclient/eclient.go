@@ -38,6 +38,7 @@ type sysInfoPg struct {
 
 type sysInfoGoog struct {
 	ProjectID string `json:"ECOM_GOOGLE_PROJECT_ID"`
+	WebAPIKey string `json:"ECOM_GOOGLE_WEB_API_KEY"`
 }
 
 type sysInfoApp struct {

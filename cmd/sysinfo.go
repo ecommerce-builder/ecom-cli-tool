@@ -46,6 +46,7 @@ var sysinfoCmd = &cobra.Command{
 		fmt.Fprintf(tw, format, "Google", "")
 		fmt.Fprintf(tw, format, "------", "")
 		fmt.Fprintf(tw, format, "Project ID", sysInfo.Env.Goog.ProjectID)
+		fmt.Fprintf(tw, format, "Web API Key", sysInfo.Env.Goog.WebAPIKey)
 		fmt.Fprintf(tw, format, "", "")
 		fmt.Fprintf(tw, format, "App", "")
 		fmt.Fprintf(tw, format, "---", "")
