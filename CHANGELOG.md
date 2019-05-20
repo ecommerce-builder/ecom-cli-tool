@@ -1,4 +1,7 @@
 ## CHANGELOG
+## v0.7.0 (Mon 20 May 2019)
++ `ecom admins remove <uuid>` calls API service OpDeleteAdmin
+
 ## v0.6.1 (Mon 20 May 2019)
 + Remove spurious fmt.Printf from admins create.
 
