@@ -61,3 +61,15 @@ func (c *EcomClient) ListAdmins() ([]*service.Customer, error) {
 	}
 	return admins, nil
 }
+
+// DeleteAdmin calls the API service to delete an administrator with the
+// given UUID.
+func (c *EcomClient) DeleteAdmin(uuid string) error {
+	uri := c.endpoint + "/admins/" + uuid
+	res, err := c.request(http.MethodDelete, uri, nil)
+	if err != nil {
+		return errors.Wrap(err, "request failed")
+	}
+	defer res.Body.Close()
+	return nil
+}
