@@ -1,4 +1,7 @@
 ## CHANGELOG
+## v0.5.0 (Mon 20 May 2019)
++ admins list operation (requires API v0.33.0 and above).
+
 ## v0.4.0 (Fri 17 May 2019)
 + Add Web API Key to sysinfo output.
 + configs becomes profiles.
