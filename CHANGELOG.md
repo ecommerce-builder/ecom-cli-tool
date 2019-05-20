@@ -1,4 +1,7 @@
 ## CHANGELOG
+## v0.5.1 (Mon 20 May 2019)
++ Broken tag fix.
+
 ## v0.5.0 (Mon 20 May 2019)
 + admins list operation (requires API v0.33.0 and above).
 
