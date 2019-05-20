@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"bitbucket.org/andyfusniakteam/ecom-cli-tool/configmgr"
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/eclient"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
@@ -18,12 +17,17 @@ var profilesRemoveCmd = &cobra.Command{
 	Short: "Remove a profile",
 	Long:  `Removes a profile dropping the credentials`,
 	Run: func(cmd *cobra.Command, args []string) {
+		if len(rc.Configurations) == 0 {
+			fmt.Println("No profiles")
+			os.Exit(0)
+		}
+
 		// build a slice of "Name (Endpoint)" strings
 		pl := make([]string, 0, 8)
 		for k, v := range rc.Configurations {
 			pl = append(pl, fmt.Sprintf("%s (%s)", k, v.Endpoint))
 		}
-
+		fmt.Println(pl)
 		sel := promptSelectProfile(pl)
 		name := sel[:strings.Index(sel, "(")-1]
 		fmt.Fprintf(os.Stdout, "Profile %q selected.\n", name)
@@ -32,10 +36,12 @@ var profilesRemoveCmd = &cobra.Command{
 		if remove {
 			p := rc.Configurations[name]
 
-			client := eclient.New(p.Endpoint, timeout)
+			//client := eclient.New(p.Endpoint, timeout)
 			hostname, err := configmgr.URLToHostName(p.Endpoint)
-			g, _ := client.GetConfig()
-			filename := fmt.Sprintf("%s-%s", g.WebAPIKey, hostname)
+			//g, _ := client.GetConfig()
+
+			fmt.Printf("%+v\n", p)
+			filename := fmt.Sprintf("%s-%s", hostname, p.DevKey[:6])
 
 			ok, err := configmgr.DeleteProject(filename)
 			if err != nil {
@@ -52,7 +58,6 @@ var profilesRemoveCmd = &cobra.Command{
 				fmt.Fprintf(os.Stderr, "write config failed: %+v", err)
 				os.Exit(1)
 			}
-
 			fmt.Fprintf(os.Stdout, "Project %q removed.\n", name)
 			os.Exit(0)
 		}

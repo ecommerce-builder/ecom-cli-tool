@@ -27,7 +27,7 @@ var profilesAddCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		ecomClient := eclient.New(endpoint, timeout)
-		customToken, err := ecomClient.SignInWithDevKey(devKey)
+		customToken, customer, err := ecomClient.SignInWithDevKey(devKey)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 			os.Exit(1)
@@ -44,9 +44,19 @@ var profilesAddCmd = &cobra.Command{
 		if rc.Configurations == nil {
 			rc.Configurations = make(map[string]configmgr.EcomConfigEntry)
 		}
+
+		c := configmgr.Customer{
+			UUID:      customer.UUID,
+			UID:       customer.UID,
+			Role:      customer.Role,
+			Email:     customer.Email,
+			Firstname: customer.Firstname,
+			Lastname:  customer.Lastname,
+		}
 		rc.Configurations[filename] = configmgr.EcomConfigEntry{
 			DevKey:   devKey,
 			Endpoint: endpoint,
+			Customer: c,
 		}
 
 		err = configmgr.WriteConfig(rc)

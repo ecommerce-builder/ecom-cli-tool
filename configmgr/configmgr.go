@@ -14,22 +14,39 @@ import (
 	"github.com/spf13/viper"
 )
 
+// TokenAndRefreshToken contains a pair of JTW and refresh token for Firebase.
 type TokenAndRefreshToken struct {
 	IDToken      string `json:"idToken"`
 	RefreshToken string `json:"refreshToken"`
 }
 
+// Customer details
+type Customer struct {
+	UUID      string `mapstructure:"uuid" yaml:"uuid"`
+	UID       string `mapstructure:"uid" yaml:"uid"`
+	Role      string `mapstructure:"role" yaml:"role"`
+	Email     string `mapstructure:"email" yaml:"email"`
+	Firstname string `mapstructure:"firstname" yaml:"firstname"`
+	Lastname  string `mapstructure:"lastname" yaml:"lastname"`
+}
+
 // EcomConfigEntry represents a single configuration set.
 type EcomConfigEntry struct {
-	FirebaseAPIKey string `mapstructure:"firebase-api-key" yaml:"firebase-api-key"`
-	DevKey         string `mapstructure:"developer-key" yaml:"developer-key"`
-	Endpoint       string `mapstructure:"endpoint" yaml:"endpoint"`
+	Endpoint string   `mapstructure:"endpoint" yaml:"endpoint"`
+	DevKey   string   `mapstructure:"developer-key" yaml:"developer-key"`
+	Customer Customer `mapstructure:"customer" yaml:"customer"`
 }
 
 // EcomConfigurations contains the map of config entries.
 type EcomConfigurations struct {
 	Configurations map[string]EcomConfigEntry `mapstructure:"configurations" yaml:"configurations"`
 }
+
+// func (e EcomConfigurations) CurrentConfigEntry() EcomConfigEntry {
+// 	for _, c := range e.Configurations {
+// 		c.Endpoint
+// 	}
+// }
 
 const (
 	configFile = ".ecomrc.yaml"
@@ -123,17 +140,15 @@ func TokenFilename(e *EcomConfigEntry) (string, error) {
 	if err != nil {
 		return "", errors.Wrapf(err, "url to hostname failed for %q", e.Endpoint)
 	}
-	file := fmt.Sprintf("%s-%s", e.FirebaseAPIKey, hostname)
-	tokenFile := filepath.Join(hd, configDir, file)
+	filename := fmt.Sprintf("%s-%s", hostname, e.DevKey[:6])
+	tokenFile := filepath.Join(hd, configDir, filename)
 	exists, err := exists(tokenFile)
 	if err != nil {
 		return "", errors.Wrapf(err, "exists(%s) failed", tokenFile)
 	}
-
 	if !exists {
 		return "", fmt.Errorf("token file %q not found", tokenFile)
 	}
-
 	return tokenFile, nil
 }
 
@@ -269,16 +284,12 @@ func ReadTokenAndRefreshToken(fp string) (*TokenAndRefreshToken, error) {
 	return &tar, nil
 }
 
-// WriteTokenAndRefreshToken writes a copy of the token and refresh token to the file system
-func WriteTokenAndRefreshToken(webKey, endpoint string, tar *TokenAndRefreshToken) error {
+// WriteTokenAndRefreshToken writes a copy of the token and refresh token to file.
+func WriteTokenAndRefreshToken(filename string, tar *TokenAndRefreshToken) error {
 	err := ensureConfigDirExists()
 	if err != nil {
 		return errors.Wrap(err, "couldn't ensure config dir exists")
 	}
-
-	hostname, err := URLToHostName(endpoint)
-	filename := fmt.Sprintf("%s-%s", webKey, hostname)
-
 	hd, err := homeDir()
 	if err != nil {
 		return errors.Wrap(err, "failed to get home directory")

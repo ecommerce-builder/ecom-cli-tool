@@ -19,7 +19,7 @@ var profilesSelectCmd = &cobra.Command{
 		// build a slice of "Name (Endpoint)" strings
 		pl := make([]string, 0, 8)
 		for k, v := range rc.Configurations {
-			pl = append(pl, fmt.Sprintf("%s (%s)", k, v.Endpoint))
+			pl = append(pl, fmt.Sprintf("%s (%s %s %s)", k, v.Endpoint, v.Customer.Email, v.Customer.Role))
 		}
 
 		sel := promptSelectProfile(pl)
