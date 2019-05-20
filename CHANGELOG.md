@@ -1,5 +1,5 @@
 ## CHANGELOG
-## v0.3.1 (Fri 17 May 2019)
+## v0.4.0 (Fri 17 May 2019)
 + Add Web API Key to sysinfo output.
 + configs becomes profiles.
 + Add new profiles using endpoint and devkey only.
