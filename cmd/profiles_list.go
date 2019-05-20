@@ -20,7 +20,7 @@ var profilesListCmd = &cobra.Command{
 		format := "%v\t%v\t%v\t%v\t%v\n"
 		tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
 		fmt.Fprintf(tw, format, "Active", "Endpoint", "Email", "Role", "Dev Key")
-		fmt.Fprintf(tw, format, "------", "--------", "----", "-----", "-------")
+		fmt.Fprintf(tw, format, "------", "--------", "-----", "----", "-------")
 		for k, v := range rc.Configurations {
 			var active string
 			if currentConfigName == k {
