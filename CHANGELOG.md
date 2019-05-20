@@ -1,4 +1,7 @@
 ## CHANGELOG
+## v0.6.0 (Mon 20 May 2019)
++ OpCreateAdmin feature added `ecom admins create`.
+
 ## v0.5.1 (Mon 20 May 2019)
 + Broken tag fix.
 

@@ -10,10 +10,9 @@ import (
 	"gopkg.in/AlecAivazis/survey.v1"
 )
 
-// profilesListCmd represents the profilesList command
-var profilesAddCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Add a new profile",
+var profilesCreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a new profile",
 	Run: func(cmd *cobra.Command, args []string) {
 		endpoint, devKey, err := promptAddProfile()
 		if err != nil {
@@ -80,5 +79,5 @@ func promptAddProfile() (endpoint, devKey string, err error) {
 }
 
 func init() {
-	profilesCmd.AddCommand(profilesAddCmd)
+	profilesCmd.AddCommand(profilesCreateCmd)
 }

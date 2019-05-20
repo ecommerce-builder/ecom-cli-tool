@@ -3,10 +3,48 @@ package eclient
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	service "bitbucket.org/andyfusniakteam/ecom-api-go/service/firebase"
 	"github.com/pkg/errors"
 )
+
+type createAdminRequest struct {
+	Email  string `json:"email"`
+	Passwd string `json:"password"`
+	First  string `json:"firstname"`
+	Last   string `json:"lastname"`
+}
+
+// CreateAdmin calls the API Service to create a new administrator.
+func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*service.Customer, error) {
+	p := createAdminRequest{
+		Email:  email,
+		Passwd: passwd,
+		First:  first,
+		Last:   last,
+	}
+	payload, err := json.Marshal(&p)
+	if err != nil {
+		return nil, errors.Wrap(err, "create admin failed")
+	}
+	uri := c.endpoint + "/admins"
+	res, err := c.request(http.MethodPost, uri, strings.NewReader(string(payload)))
+	if err != nil {
+		return nil, errors.Wrap(err, "request failed")
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode >= 400 {
+		return nil, errors.Errorf("HTTP POST to %q return %s", uri, res.Status)
+	}
+	customer := service.Customer{}
+	err = json.NewDecoder(res.Body).Decode(&customer)
+	if err != nil {
+		return nil, errors.Wrapf(err, "create product response decode failed")
+	}
+	return &customer, nil
+}
 
 // ListAdmins calls the API Service to get all administrators.
 func (c *EcomClient) ListAdmins() ([]*service.Customer, error) {
