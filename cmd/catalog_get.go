@@ -16,7 +16,8 @@ var catalogGetCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		current := rc.Configurations[currentConfigName]
-		ecomClient := eclient.NewEcomClient(current.FirebaseAPIKey, current.Endpoint, timeout)
+		fmt.Printf("%v\n", current)
+		ecomClient := eclient.New(current.Endpoint, timeout)
 		err := ecomClient.SetToken(&current)
 		if err != nil {
 			log.Fatal(err)

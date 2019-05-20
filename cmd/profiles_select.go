@@ -11,21 +11,20 @@ import (
 	"gopkg.in/AlecAivazis/survey.v1"
 )
 
-// projectsListCmd represents the projectsList command
-var projectsSelectCmd = &cobra.Command{
+// profilessListCmd represents the profilesList command
+var profilesSelectCmd = &cobra.Command{
 	Use:   "select",
-	Short: "Select and change to a new configuration.",
-	Long:  ``,
+	Short: "Select and change to a new profile",
 	Run: func(cmd *cobra.Command, args []string) {
 		// build a slice of "Name (Endpoint)" strings
 		pl := make([]string, 0, 8)
 		for k, v := range rc.Configurations {
-			pl = append(pl, fmt.Sprintf("%s (%s)", k, v.Endpoint))
+			pl = append(pl, fmt.Sprintf("%s (%s %s %s)", k, v.Endpoint, v.Customer.Email, v.Customer.Role))
 		}
 
-		sel := promptSelectProject(pl)
+		sel := promptSelectProfile(pl)
 		name := sel[:strings.Index(sel, "(")-1]
-		fmt.Fprintf(os.Stdout, "Project %q selected.\n", name)
+		fmt.Fprintf(os.Stdout, "Profile %q selected.\n", name)
 
 		err := configmgr.WriteCurrentProject(name)
 		if err != nil {
@@ -35,15 +34,15 @@ var projectsSelectCmd = &cobra.Command{
 }
 
 func init() {
-	projectsCmd.AddCommand(projectsSelectCmd)
+	profilesCmd.AddCommand(profilesSelectCmd)
 }
 
-func promptSelectProject(pl []string) string {
-	proj := ""
+func promptSelectProfile(pl []string) string {
+	profile := ""
 	prompt := &survey.Select{
-		Message: "Select a project:",
+		Message: "Select a profile:",
 		Options: pl,
 	}
-	survey.AskOne(prompt, &proj, nil)
-	return proj
+	survey.AskOne(prompt, &profile, nil)
+	return profile
 }

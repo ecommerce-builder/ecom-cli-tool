@@ -93,5 +93,8 @@ func (c *EcomClient) PurgeCatalogAssocs() error {
 		return errors.Wrap(err, "request failed")
 	}
 	defer res.Body.Close()
+	if res.StatusCode >= 400 {
+		return errors.Errorf("unauthorized")
+	}
 	return nil
 }

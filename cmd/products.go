@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// projectsCmd represents the projects command
+// productsCmd represents the products command
 var productsCmd = &cobra.Command{
 	Use:   "products",
 	Short: "Products management",
