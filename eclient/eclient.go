@@ -12,9 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/andyfusniakteam/ecom-api-go/service/firebase"
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/configmgr"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/pkg/errors"
 )
 
@@ -362,7 +361,7 @@ func (c *EcomClient) SysInfo() (*SysInfo, error) {
 }
 
 // GetCatalog returns a slice of NestedSetNodes.
-func (c *EcomClient) GetCatalog() (*firebase.Category, error) {
+func (c *EcomClient) GetCatalog() (*Category, error) {
 	uri := c.endpoint + "/catalog"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
@@ -381,7 +380,7 @@ func (c *EcomClient) GetCatalog() (*firebase.Category, error) {
 		return nil, errors.Wrapf(err, "%s", res.Status)
 	}
 
-	var tree *firebase.Category
+	var tree *Category
 	if err := json.NewDecoder(res.Body).Decode(&tree); err != nil {
 		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
 	}

@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/configmgr"
+	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
 )

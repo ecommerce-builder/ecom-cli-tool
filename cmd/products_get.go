@@ -6,7 +6,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/eclient"
+	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
 	"gopkg.in/go-playground/validator.v9"
 )

@@ -5,8 +5,7 @@ import (
 	"log"
 	"os"
 
-	"bitbucket.org/andyfusniakteam/ecom-api-go/service/firebase"
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/eclient"
+	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +27,7 @@ var catalogGetCmd = &cobra.Command{
 	},
 }
 
-func treeView(node *firebase.Category, depth int, lastSibling bool) {
+func treeView(node *eclient.Category, depth int, lastSibling bool) {
 	// fmt.Printf("%+v\n", node)
 	// fmt.Printf("node.Name=%s last sibling=%t\n", node.Name, lastSibling)
 	var arm string
@@ -49,8 +48,8 @@ func treeView(node *firebase.Category, depth int, lastSibling bool) {
 		fmt.Print(arm)
 	}
 	fmt.Printf("%s (%s)\n", node.Segment, node.Name)
-	lastIdx := len(node.Nodes) - 1
-	for i, n := range node.Nodes {
+	lastIdx := len(node.Categories) - 1
+	for i, n := range node.Categories {
 		treeView(n, depth+1, lastIdx == i)
 	}
 }

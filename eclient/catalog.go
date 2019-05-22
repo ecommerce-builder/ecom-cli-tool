@@ -10,9 +10,9 @@ import (
 
 // A Category is a single node in the catalog.
 type Category struct {
-	Segment    string     `json:"segment" yaml:"segment"`
-	Name       string     `json:"name" yaml:"name"`
-	Categories []Category `json:"categories" yaml:"categories"`
+	Segment    string      `json:"segment" yaml:"segment"`
+	Name       string      `json:"name" yaml:"name"`
+	Categories []*Category `json:"categories" yaml:"categories"`
 }
 
 // A Catalog contains a single root node of the catalog.

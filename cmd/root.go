@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/configmgr"
+	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/spf13/cobra"
 )
 

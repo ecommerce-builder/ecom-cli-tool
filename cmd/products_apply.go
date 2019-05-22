@@ -8,8 +8,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	service "bitbucket.org/andyfusniakteam/ecom-api-go/service/firebase"
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/eclient"
+	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
 )
 
@@ -34,7 +33,7 @@ var productsApplyCmd = &cobra.Command{
 		}
 
 		var p struct {
-			Product service.Product `yaml:"product"`
+			Product eclient.Product `yaml:"product"`
 		}
 		err = yaml.Unmarshal([]byte(data), &p)
 		if err != nil {
@@ -44,7 +43,7 @@ var productsApplyCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("error: %+v", err)
 		}
-		pc := service.ProductCreate{
+		pc := eclient.ProductCreate{
 			SKU:  p.Product.SKU,
 			EAN:  p.Product.EAN,
 			URL:  p.Product.URL,
@@ -58,7 +57,7 @@ var productsApplyCmd = &cobra.Command{
 			}
 			os.Exit(0)
 		}
-		pu := service.ProductUpdate{
+		pu := eclient.ProductUpdate{
 			EAN:  p.Product.EAN,
 			URL:  p.Product.URL,
 			Name: p.Product.Name,

@@ -1,6 +1,6 @@
 package main
 
-import "bitbucket.org/andyfusniakteam/ecom-cli-tool/cmd"
+import "github.com/ecommerce-builder/ecom-cli-tool/cmd"
 
 var version string
 

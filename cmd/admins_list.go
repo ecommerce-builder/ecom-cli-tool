@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/eclient"
+	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
 )
 

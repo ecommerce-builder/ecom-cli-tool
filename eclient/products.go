@@ -5,18 +5,50 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
-	service "bitbucket.org/andyfusniakteam/ecom-api-go/service/firebase"
 	"github.com/pkg/errors"
 )
 
+type ProductCreate struct {
+	SKU  string      `json:"sku" yaml:"sku"`
+	EAN  string      `json:"ean" yaml:"ean"`
+	URL  string      `json:"url" yaml:"url"`
+	Name string      `json:"name" yaml:"name"`
+	Data ProductData `json:"data" yaml:"data"`
+}
+
+type ProductData struct {
+	Summary string `json:"summary" yaml:"summary"`
+	Desc    string `json:"description" yaml:"description"`
+	Spec    string `json:"specification" yaml:"specification"`
+}
+
+type ProductUpdate struct {
+	EAN  string      `json:"ean" yaml:"ean"`
+	URL  string      `json:"url" yaml:"url"`
+	Name string      `json:"name" yaml:"name"`
+	Data ProductData `json:"data" yaml:"data"`
+}
+
+// Product contains all the fields that comprise a product in the catalog.
+type Product struct {
+	SKU      string      `json:"sku" yaml:"sku,omitempty"`
+	EAN      string      `json:"ean" yaml:"ean"`
+	URL      string      `json:"url" yaml:"url"`
+	Name     string      `json:"name" yaml:"name"`
+	Data     ProductData `json:"data" yaml:"data"`
+	Created  time.Time   `json:"created,omitempty"`
+	Modified time.Time   `json:"modified,omitempty"`
+}
+
 // UpdateProduct calls the API Service to update an existing product.
-func (c *EcomClient) UpdateProduct(sku string, p *service.ProductUpdate) (*service.Product, error) {
+func (c *EcomClient) UpdateProduct(sku string, p *ProductUpdate) (*Product, error) {
 	payload, err := json.Marshal(&p)
 	if err != nil {
 		return nil, errors.Wrapf(err, "update product sku=%q failed", sku)
 	}
-	uri := c.endpoint + "/products/" + sku 
+	uri := c.endpoint + "/products/" + sku
 	body := strings.NewReader(string(payload))
 	res, err := c.request(http.MethodPut, uri, body)
 	if err != nil {
@@ -32,7 +64,7 @@ func (c *EcomClient) UpdateProduct(sku string, p *service.ProductUpdate) (*servi
 	if res.StatusCode >= 400 {
 		return nil, errors.Errorf("HTTP PUT to %q return %s", uri, res.Status)
 	}
-	pr := service.Product{}
+	pr := Product{}
 	err = json.NewDecoder(res.Body).Decode(&pr)
 	if err != nil {
 		return nil, errors.Wrapf(err, "create product response decode failed")
@@ -41,7 +73,7 @@ func (c *EcomClient) UpdateProduct(sku string, p *service.ProductUpdate) (*servi
 }
 
 // CreateProduct calls the API Service to create a new product.
-func (c *EcomClient) CreateProduct(p *service.ProductCreate) (*service.Product, error) {
+func (c *EcomClient) CreateProduct(p *ProductCreate) (*Product, error) {
 	payload, err := json.Marshal(&p)
 	if err != nil {
 		return nil, errors.Wrapf(err, "create product sku=%q failed", p.SKU)
@@ -56,7 +88,7 @@ func (c *EcomClient) CreateProduct(p *service.ProductCreate) (*service.Product, 
 	if res.StatusCode >= 400 {
 		return nil, errors.Errorf("HTTP POST to %q return %s", uri, res.Status)
 	}
-	productResponse := service.Product{}
+	productResponse := Product{}
 	err = json.NewDecoder(res.Body).Decode(&productResponse)
 	if err != nil {
 		return nil, errors.Wrapf(err, "create product response decode failed")
@@ -65,14 +97,14 @@ func (c *EcomClient) CreateProduct(p *service.ProductCreate) (*service.Product, 
 }
 
 // GetProduct calls the API Service to get a product by SKU.
-func (c *EcomClient) GetProduct(sku string) (*service.Product, error) {
+func (c *EcomClient) GetProduct(sku string) (*Product, error) {
 	uri := c.endpoint + "/products/" + sku
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
 	}
 	defer res.Body.Close()
-	p := service.Product{}
+	p := Product{}
 	err = json.NewDecoder(res.Body).Decode(&p)
 	if err != nil {
 		return nil, errors.Wrapf(err, "get product response decode failed")

@@ -5,7 +5,8 @@ import (
 	"log"
 	"os"
 
-	"bitbucket.org/andyfusniakteam/ecom-cli-tool/eclient"
+	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
+
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
 )

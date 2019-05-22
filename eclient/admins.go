@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	service "bitbucket.org/andyfusniakteam/ecom-api-go/service/firebase"
 	"github.com/pkg/errors"
 )
 
@@ -17,7 +16,7 @@ type createAdminRequest struct {
 }
 
 // CreateAdmin calls the API Service to create a new administrator.
-func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*service.Customer, error) {
+func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*Customer, error) {
 	p := createAdminRequest{
 		Email:  email,
 		Passwd: passwd,
@@ -38,7 +37,7 @@ func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*service.Cu
 	if res.StatusCode >= 400 {
 		return nil, errors.Errorf("HTTP POST to %q return %s", uri, res.Status)
 	}
-	customer := service.Customer{}
+	customer := Customer{}
 	err = json.NewDecoder(res.Body).Decode(&customer)
 	if err != nil {
 		return nil, errors.Wrapf(err, "create product response decode failed")
@@ -47,14 +46,14 @@ func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*service.Cu
 }
 
 // ListAdmins calls the API Service to get all administrators.
-func (c *EcomClient) ListAdmins() ([]*service.Customer, error) {
+func (c *EcomClient) ListAdmins() ([]*Customer, error) {
 	uri := c.endpoint + "/admins"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
 	}
 	defer res.Body.Close()
-	admins := make([]*service.Customer, 0, 8)
+	admins := make([]*Customer, 0, 8)
 	err = json.NewDecoder(res.Body).Decode(&admins)
 	if err != nil {
 		return nil, errors.Wrapf(err, "list admins response decode failed")

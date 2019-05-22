@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
-	service "bitbucket.org/andyfusniakteam/ecom-api-go/service/firebase"
 	"github.com/pkg/errors"
 )
 
@@ -23,20 +23,33 @@ type Associations struct {
 	Assocs []Assoc `yaml:"associations"`
 }
 
+// An AssocProduct holds details of a product in the context of an AssocSet.
+type AssocProduct struct {
+	SKU      string    `json:"sku"`
+	Created  time.Time `json:"created"`
+	Modified time.Time `json:"modified"`
+}
+
+// SAssoc details a catalog association including products.
+type SAssoc struct {
+	Path     string         `json:"path"`
+	Products []AssocProduct `json:"products"`
+}
+
 // GetCatalogAssocs calls the API Service to get all catalog associations.
-func (c *EcomClient) GetCatalogAssocs() (map[string][]service.AssocProduct, error) {
+func (c *EcomClient) GetCatalogAssocs() (map[string][]AssocProduct, error) {
 	uri := c.endpoint + "/assocs"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
 	}
 	defer res.Body.Close()
-	cpos := make([]*service.Assoc, 0)
+	cpos := make([]*SAssoc, 0)
 	err = json.NewDecoder(res.Body).Decode(&cpos)
 	if err != nil {
 		return nil, errors.Wrapf(err, "get product response decode failed")
 	}
-	assocs := make(map[string][]service.AssocProduct)
+	assocs := make(map[string][]AssocProduct)
 	for _, v := range cpos {
 		if _, ok := assocs[v.Path]; !ok {
 			assocs[v.Path] = v.Products

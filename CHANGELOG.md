@@ -1,4 +1,8 @@
 ## CHANGELOG
+## v0.8.0 (Wed 22 May 2019)
++ Severed cross depedency on the API Service codebase.
++ Moved to github.com/ecommerce-builder/ecom-cli-tool public repo.
+
 ## v0.7.2 (Wed 22 May 2019)
 + catalog purge shows warning and aborts if associations still exist (409 Conflict returned from API).
 + Modified build.sh to auto copy binaries to the ecom-docs repo public downloads dir.
