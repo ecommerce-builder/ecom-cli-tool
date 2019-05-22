@@ -48,5 +48,15 @@ func (c *EcomClient) PurgeCatalog() error {
 		return errors.Wrap(err, "request failed")
 	}
 	defer res.Body.Close()
+	if res.StatusCode >= 400 {
+		var e struct {
+			Code    int    `json:"code"`
+			Message string `json:"message"`
+		}
+		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
+			return errors.Wrapf(err, "client decode error")
+		}
+		return errors.Errorf(e.Message)
+	}
 	return nil
 }

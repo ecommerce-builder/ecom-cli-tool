@@ -1,6 +1,11 @@
 ## CHANGELOG
+## v0.7.2 (Wed 22 May 2019)
++ catalog purge shows warning and aborts if associations still exist (409 Conflict returned from API).
++ Modified build.sh to auto copy binaries to the ecom-docs repo public downloads dir.
++ Fixes ecom catalog get output to include the segment and name combined.
+
 ## v0.7.1 (Wed 22 May 2019)
-+ Fix broken `ecom catalog apply ...` to update the catalog.
++ Fixes broken `ecom catalog apply ...` to update the catalog.
 + Adds endpoints guard to the catalog.yaml file.
 + Requires API Version v0.34.1 or above.
 

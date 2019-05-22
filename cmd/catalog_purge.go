@@ -14,13 +14,10 @@ var catalogPurgeCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		current := rc.Configurations[currentConfigName]
 		client := eclient.New(current.Endpoint, timeout)
-		err := client.SetToken(&current)
-		if err != nil {
+		if err := client.SetToken(&current); err != nil {
 			log.Fatal(err)
 		}
-
-		err = client.PurgeCatalog()
-		if err != nil {
+		if err := client.PurgeCatalog(); err != nil {
 			log.Fatal(err)
 		}
 		os.Exit(0)
