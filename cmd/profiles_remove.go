@@ -21,7 +21,6 @@ var profilesRemoveCmd = &cobra.Command{
 			fmt.Println("No profiles")
 			os.Exit(0)
 		}
-
 		// build a slice of "Name (Endpoint)" strings
 		pl := make([]string, 0, 8)
 		for k, v := range rc.Configurations {
@@ -35,14 +34,8 @@ var profilesRemoveCmd = &cobra.Command{
 		remove := confirm(fmt.Sprintf("Are you sure you want to remove %q", name))
 		if remove {
 			p := rc.Configurations[name]
-
-			//client := eclient.New(p.Endpoint, timeout)
 			hostname, err := configmgr.URLToHostName(p.Endpoint)
-			//g, _ := client.GetConfig()
-
-			fmt.Printf("%+v\n", p)
 			filename := fmt.Sprintf("%s-%s", hostname, p.DevKey[:6])
-
 			ok, err := configmgr.DeleteProject(filename)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Warn: remove profile failed: %+v\n", errors.Cause(err))
@@ -50,11 +43,9 @@ var profilesRemoveCmd = &cobra.Command{
 			if !ok {
 				fmt.Fprintf(os.Stderr, "Warn: remove profile failed: %+v\n", err)
 			}
-
 			// delete the configuration and write the new config to the filesystem.
 			delete(rc.Configurations, name)
-			err = configmgr.WriteConfig(rc)
-			if err != nil {
+			if err = configmgr.WriteConfig(rc); err != nil {
 				fmt.Fprintf(os.Stderr, "write config failed: %+v", err)
 				os.Exit(1)
 			}
@@ -67,10 +58,10 @@ var profilesRemoveCmd = &cobra.Command{
 }
 
 func confirm(msg string) bool {
-	answer := false
 	prompt := &survey.Confirm{
 		Message: msg,
 	}
+	var answer bool
 	survey.AskOne(prompt, &answer, nil)
 	return answer
 }

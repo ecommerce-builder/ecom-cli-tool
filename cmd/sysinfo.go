@@ -14,12 +14,10 @@ import (
 var sysinfoCmd = &cobra.Command{
 	Use:   "sysinfo",
 	Short: "Prints system information from the running API service.",
-	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		current := rc.Configurations[currentConfigName]
 		ecomClient := eclient.New(current.Endpoint, timeout)
-		err := ecomClient.SetToken(&current)
-		if err != nil {
+		if err := ecomClient.SetToken(&current); err != nil {
 			log.Fatal(err)
 		}
 

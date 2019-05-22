@@ -21,13 +21,10 @@ var profilesSelectCmd = &cobra.Command{
 		for k, v := range rc.Configurations {
 			pl = append(pl, fmt.Sprintf("%s (%s %s %s)", k, v.Endpoint, v.Customer.Email, v.Customer.Role))
 		}
-
 		sel := promptSelectProfile(pl)
 		name := sel[:strings.Index(sel, "(")-1]
 		fmt.Fprintf(os.Stdout, "Profile %q selected.\n", name)
-
-		err := configmgr.WriteCurrentProject(name)
-		if err != nil {
+		if err := configmgr.WriteCurrentProject(name); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -38,11 +35,11 @@ func init() {
 }
 
 func promptSelectProfile(pl []string) string {
-	profile := ""
 	prompt := &survey.Select{
 		Message: "Select a profile:",
 		Options: pl,
 	}
+	var profile string
 	survey.AskOne(prompt, &profile, nil)
 	return profile
 }
