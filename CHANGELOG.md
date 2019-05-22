@@ -1,4 +1,7 @@
 ## CHANGELOG
+## v0.8.1 (Wed 22 May 2019)
++ Fix for `ecom products get <sku>` govalidate experimental code removed.
+
 ## v0.8.0 (Wed 22 May 2019)
 + Severed cross depedency on the API Service codebase.
 + Moved to github.com/ecommerce-builder/ecom-cli-tool public repo.
