@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -161,6 +162,9 @@ func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 	// If the token has expired, use the refresh token to get another
 	if claims.ExpiresAt-utcNow <= 0 {
 		g, err := c.GetConfig()
+		if err != nil {
+			log.Fatal(err)
+		}
 		tar, err = c.ExchangeRefreshTokenForIDToken(g.WebAPIKey, tar.RefreshToken)
 		if err != nil {
 			return errors.Wrap(err, "exchange refresh token for id token failed")

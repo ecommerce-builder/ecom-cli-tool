@@ -1,4 +1,9 @@
 ## CHANGELOG
+## v0.7.1 (Wed 22 May 2019)
++ Fix broken `ecom catalog apply ...` to update the catalog.
++ Adds endpoints guard to the catalog.yaml file.
++ Requires API Version v0.34.1 or above.
+
 ## v0.7.0 (Mon 20 May 2019)
 + `ecom admins remove <uuid>` calls API service OpDeleteAdmin
 

@@ -17,7 +17,8 @@ type Category struct {
 
 // A Catalog contains a single root node of the catalog.
 type Catalog struct {
-	Category Category `yaml:"catalog"`
+	Endpoints []string `yaml:"endpoints"`
+	Category  Category `yaml:"catalog"`
 }
 
 // UpdateCatalog calls the API Service to update the catalog.
@@ -33,12 +34,6 @@ func (c *EcomClient) UpdateCatalog(cats Category) error {
 		return errors.Wrap(err, "request failed")
 	}
 	defer res.Body.Close()
-
-	//bs, err := ioutil.ReadAll(res.Body)
-	//if err != nil {
-	//	return nil, errors.Wrap(err, "readall failed:")
-	//}
-	//fmt.Println(string(bs))
 	if res.StatusCode >= 400 {
 		return errors.Errorf("HTTP PUT to %q return %s", uri, res.Status)
 	}
