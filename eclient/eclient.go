@@ -78,8 +78,10 @@ type tokenAndCustomerResponse struct {
 	Customer    Customer `json:"customer"`
 }
 
+var timeout = time.Duration(10 * time.Second)
+
 // New creates an EcomClient struct for interacting with the API Service
-func New(endpoint string, timeout time.Duration) *EcomClient {
+func New(endpoint string) *EcomClient {
 	tr := &http.Transport{
 		MaxIdleConnsPerHost: 10,
 	}
@@ -301,8 +303,8 @@ func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(firebaseAPIKey, tok
 	}, nil
 }
 
+// SignInWithDevKey exchanges a Developer Key for a Customer token.
 // https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=[API_KEY]
-// SignInWithDevKey exchanges a Developer Key for a Custom Token.
 func (c *EcomClient) SignInWithDevKey(key string) (token string, customer *Customer, err error) {
 	uri := c.endpoint + "/signin-with-devkey"
 	payload := devKeyRequest{

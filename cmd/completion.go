@@ -20,10 +20,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var completionCmd = &cobra.Command{
-	Use:   "completion",
-	Short: "Generates bash completion scripts",
-	Long: `To load completion run
+// NewCmdCompletion returns new initialized instance of the completion sub command
+func NewCmdCompletion() *cobra.Command {
+	var cmd = &cobra.Command{
+		Use:   "completion",
+		Short: "Generates bash completion scripts",
+		Long: `To load completion run
 . <(bitbucket completion)
 
 To configure your bash shell to load completions for each session add to your bashrc
@@ -31,11 +33,9 @@ To configure your bash shell to load completions for each session add to your ba
 # ~/.bashrc or ~/.profile
 . <(bitbucket completion)
 `,
-	Run: func(cmd *cobra.Command, args []string) {
-		rootCmd.GenBashCompletion(os.Stdout);
-	},
-}
-
-func init() {
-        rootCmd.AddCommand(completionCmd)
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.GenBashCompletion(os.Stdout)
+		},
+	}
+	return cmd
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ProductCreate contains fields used when creating a new product.
 type ProductCreate struct {
 	SKU  string      `json:"sku" yaml:"sku"`
 	EAN  string      `json:"ean" yaml:"ean"`
@@ -18,12 +19,14 @@ type ProductCreate struct {
 	Data ProductData `json:"data" yaml:"data"`
 }
 
+// ProductData contains fields used when displaying a list of products.
 type ProductData struct {
 	Summary string `json:"summary" yaml:"summary"`
 	Desc    string `json:"description" yaml:"description"`
 	Spec    string `json:"specification" yaml:"specification"`
 }
 
+// ProductUpdate contains fields used when updating a product.
 type ProductUpdate struct {
 	EAN  string      `json:"ean" yaml:"ean"`
 	URL  string      `json:"url" yaml:"url"`
@@ -56,17 +59,11 @@ func (c *EcomClient) UpdateProduct(sku string, p *ProductUpdate) (*Product, erro
 	}
 	defer res.Body.Close()
 
-	//bs, err := ioutil.ReadAll(res.Body)
-	//if err != nil {
-	//	return nil, errors.Wrap(err, "readall failed:")
-	//}
-	//fmt.Println(string(bs))
 	if res.StatusCode >= 400 {
 		return nil, errors.Errorf("HTTP PUT to %q return %s", uri, res.Status)
 	}
 	pr := Product{}
-	err = json.NewDecoder(res.Body).Decode(&pr)
-	if err != nil {
+	if err = json.NewDecoder(res.Body).Decode(&pr); err != nil {
 		return nil, errors.Wrapf(err, "create product response decode failed")
 	}
 	return &pr, nil
@@ -89,8 +86,7 @@ func (c *EcomClient) CreateProduct(p *ProductCreate) (*Product, error) {
 		return nil, errors.Errorf("HTTP POST to %q return %s", uri, res.Status)
 	}
 	productResponse := Product{}
-	err = json.NewDecoder(res.Body).Decode(&productResponse)
-	if err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&productResponse); err != nil {
 		return nil, errors.Wrapf(err, "create product response decode failed")
 	}
 	return &productResponse, nil
@@ -105,8 +101,7 @@ func (c *EcomClient) GetProduct(sku string) (*Product, error) {
 	}
 	defer res.Body.Close()
 	p := Product{}
-	err = json.NewDecoder(res.Body).Decode(&p)
-	if err != nil {
+	if err := json.NewDecoder(res.Body).Decode(&p); err != nil {
 		return nil, errors.Wrapf(err, "get product response decode failed")
 	}
 	return &p, nil

@@ -1,4 +1,9 @@
 ## CHANGELOG
+## v0.9.0 (Thu 23 May 2019)
++ Complete restructure and organized of code into sub commands.
++ Remove bad global deps.
++ Code tidy.
+
 ## v0.8.1 (Wed 22 May 2019)
 + Fix for `ecom products get <sku>` govalidate experimental code removed.
 

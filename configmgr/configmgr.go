@@ -308,3 +308,18 @@ func WriteTokenAndRefreshToken(filename string, tar *TokenAndRefreshToken) error
 	}
 	return nil
 }
+
+// GetCurrentConfig returns a EcomConfigurations struct containing a map
+// of all configurations (known as profiles to the user) along with a string
+// key mapping to the current EcomConfigEntry.
+func GetCurrentConfig() (cfgs *EcomConfigurations, curCfg string, err error) {
+	cfgs, err = ReadConfig()
+	if err != nil {
+		return nil, "", errors.Wrap(err, "ReadConfig failed")
+	}
+	curCfg, err = ReadCurrentConfigName()
+	if err != nil {
+		return nil, "", errors.Wrap(err, "ReadCurrentConfigName failed")
+	}
+	return cfgs, curCfg, nil
+}
