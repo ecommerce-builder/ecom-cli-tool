@@ -10,7 +10,7 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v2"
 )
 
 func isValidEndpoint(ep string, valid []string) (bool, error) {
@@ -58,7 +58,7 @@ func NewCmdCatalogApply() *cobra.Command {
 
 			var catalog eclient.Catalog
 			if err = yaml.Unmarshal([]byte(data), &catalog); err != nil {
-				log.Fatalf("error: %v", err)
+				log.Fatalf("error: %+v", err)
 			}
 
 			// disallow applying the catalog.yaml files with endpoints: ['host1', 'host2']

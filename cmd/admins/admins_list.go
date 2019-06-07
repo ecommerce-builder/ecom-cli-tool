@@ -23,7 +23,6 @@ func NewCmdAdminsList() *cobra.Command {
 		Run: func(cmd *cobra.Command, args []string) {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
-			fmt.Print(client)
 			if err := client.SetToken(&current); err != nil {
 				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)

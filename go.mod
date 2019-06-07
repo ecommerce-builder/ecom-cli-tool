@@ -9,9 +9,11 @@ require (
 	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/cobra v0.0.4
-	github.com/spf13/viper v1.3.2
+	github.com/spf13/viper v1.4.0
+	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f // indirect
+	golang.org/x/sys v0.0.0-20190422165155-953cdadca894 // indirect
 	gopkg.in/AlecAivazis/survey.v1 v1.8.4
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.28.0
-	gopkg.in/yaml.v3 v3.0.0-20190502103701-55513cacd4ae
+	gopkg.in/go-playground/validator.v9 v9.29.0
+	gopkg.in/yaml.v2 v2.2.2
 )

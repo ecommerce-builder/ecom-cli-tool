@@ -25,14 +25,15 @@ type EcomClient struct {
 }
 
 type sysInfoPg struct {
-	Host        string `json:"ECOM_PG_HOST"`
-	Port        string `json:"ECOM_PG_PORT"`
-	Database    string `json:"ECOM_PG_DATABASE"`
-	User        string `json:"ECOM_PG_USER"`
-	SslMode     string `json:"ECOM_PG_SSLMODE"`
-	SslCert     string `json:"ECOM_PG_SSLCERT"`
-	SslKey      string `json:"ECOM_PG_SSLKEY"`
-	SslRootCert string `json:"ECOM_PG_SSLROOTCERT"`
+	Host          string `json:"ECOM_PG_HOST"`
+	Port          string `json:"ECOM_PG_PORT"`
+	Database      string `json:"ECOM_PG_DATABASE"`
+	User          string `json:"ECOM_PG_USER"`
+	SslMode       string `json:"ECOM_PG_SSLMODE"`
+	SslCert       string `json:"ECOM_PG_SSLCERT"`
+	SslKey        string `json:"ECOM_PG_SSLKEY"`
+	SslRootCert   string `json:"ECOM_PG_SSLROOTCERT"`
+	SchemaVersion string `json:"schema_version"`
 }
 
 type sysInfoGoog struct {
@@ -364,7 +365,7 @@ func (c *EcomClient) SysInfo() (*SysInfo, error) {
 
 // GetCatalog returns a slice of NestedSetNodes.
 func (c *EcomClient) GetCatalog() (*Category, error) {
-	uri := c.endpoint + "/catalog"
+	uri := c.endpoint + "/categories"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "http new request failed")

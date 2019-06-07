@@ -12,22 +12,19 @@ import (
 
 // An Assoc holds a single catalog association.
 type Assoc struct {
-	Path     string `json:"path" yaml:"path"`
-	Products []struct {
-		SKU string `json:"sku" yaml:"sku"`
-	} `json:"products" yaml:"products"`
+	Products []string `json:"products" yaml:"products"`
 }
 
 // Associations for the catalog associations.
 type Associations struct {
-	Assocs []Assoc `yaml:"associations"`
+	Assocs map[string]*Assoc `yaml:"associations"`
 }
 
 // An AssocProduct holds details of a product in the context of an AssocSet.
 type AssocProduct struct {
-	SKU      string    `json:"sku"`
-	Created  time.Time `json:"created"`
-	Modified time.Time `json:"modified"`
+	SKU      string    `json:"sku" yaml:"sku"`
+	Created  time.Time `json:"created,omitempty"`
+	Modified time.Time `json:"modified,omitempty"`
 }
 
 // SAssoc details a catalog association including products.
@@ -59,7 +56,7 @@ func (c *EcomClient) GetCatalogAssocs() (map[string][]AssocProduct, error) {
 }
 
 // UpdateCatalogAssocs calls the API Service to update all catalog associations.
-func (c *EcomClient) UpdateCatalogAssocs(assocs []Assoc) error {
+func (c *EcomClient) UpdateCatalogAssocs(assocs map[string]*Assoc) error {
 	payload, err := json.Marshal(&assocs)
 	if err != nil {
 		return errors.Wrapf(err, "client: json marshal failed")
@@ -79,7 +76,8 @@ func (c *EcomClient) UpdateCatalogAssocs(assocs []Assoc) error {
 	//fmt.Println(string(bs))
 	if res.StatusCode >= 400 {
 		var e struct {
-			Code    int    `json:"code"`
+			Status  int    `json:"status"`
+			Code    string `json:"code"`
 			Message string `json:"message"`
 			Data    struct {
 				MissingPaths []string `json:"missing_path"`

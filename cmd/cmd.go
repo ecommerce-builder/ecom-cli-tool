@@ -27,6 +27,7 @@ func NewEcomCmd() *cobra.Command {
 	cmd.AddCommand(customers.NewCmdCustomers())
 	cmd.AddCommand(products.NewCmdProducts())
 	cmd.AddCommand(profiles.NewCmdProfiles())
+	cmd.AddCommand(NewCmdCompletion())
 	cmd.AddCommand(NewCmdSysInfo())
 	cmd.AddCommand(NewCmdVersion())
 	return cmd

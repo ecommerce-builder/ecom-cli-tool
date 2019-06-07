@@ -2,7 +2,6 @@ package catalog
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
@@ -17,7 +16,6 @@ func NewCmdCatalogPurge() *cobra.Command {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
-
 	var cmd = &cobra.Command{
 		Use:   "purge",
 		Short: "Purge the entire catalog",
@@ -25,10 +23,12 @@ func NewCmdCatalogPurge() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 			if err := client.PurgeCatalog(); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%v\n", err)
+				os.Exit(1)
 			}
 			os.Exit(0)
 		},

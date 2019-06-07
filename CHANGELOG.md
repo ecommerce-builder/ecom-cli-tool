@@ -1,4 +1,14 @@
-## CHANGELOG
+# CHANGELOG
+## v0.11.0 (Fri 6 Jun 2019)
++ Alter `build.sh` script to do binary builds only.
++ Reverting to `yaml.v2` as `yaml.v3` has a bug causing crashes whilst applying associations.
++ `products apply` accepts single product YAML files or directories of files.
++ `assocs apply` handles 409 HTTP status error messages.
+
+## v0.10.0 (Mon 23 May 2019)
++ Removed injection of version string to use hard coded string instead.
++ Add missing completion sub command.
+
 ## v0.9.0 (Thu 23 May 2019)
 + Complete restructure and organized of code into sub commands.
 + Remove bad global deps.

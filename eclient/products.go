@@ -10,46 +10,85 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ProductCreate contains fields used when creating a new product.
-type ProductCreate struct {
-	SKU  string      `json:"sku" yaml:"sku"`
-	EAN  string      `json:"ean" yaml:"ean"`
-	URL  string      `json:"url" yaml:"url"`
-	Name string      `json:"name" yaml:"name"`
-	Data ProductData `json:"data" yaml:"data"`
+// ErrProductNotFound indicates the product with given SKU could not be found.
+var ErrProductNotFound = errors.New("product not found")
+
+// ProductContent contains the variable JSON data of the product
+type ProductContent struct {
+	Meta struct {
+		Title       string `json:"title" yaml:"title"`
+		Description string `json:"description" yaml:"description"`
+	} `json:"meta" yaml:"meta"`
+	Videos        []string `json:"videos" yaml:"videos"`
+	Manuals       []string `json:"manuals" yaml:"manuals"`
+	Software      []string `json:"software" yaml:"software"`
+	Description   string   `json:"description" yaml:"description"`
+	Specification string   `json:"specification" yaml:"specification"`
+	InTheBox      string   `json:"in_the_box" yaml:"in_the_box"`
 }
 
-// ProductData contains fields used when displaying a list of products.
-type ProductData struct {
-	Summary string `json:"summary" yaml:"summary"`
-	Desc    string `json:"description" yaml:"description"`
-	Spec    string `json:"specification" yaml:"specification"`
+// ProductApply contains fields used when applying a product.
+type ProductApply struct {
+	SKU     string                 `json:"sku,omitempty" yaml:"sku"`
+	EAN     string                 `json:"ean" yaml:"ean"`
+	Path    string                 `json:"path" yaml:"path"`
+	Name    string                 `json:"name" yaml:"name"`
+	Images  []*ProductImageApply   `json:"images" yaml:"images"`
+	Pricing []*ProductPricingApply `json:"pricing" yaml:"pricing"`
+	Content ProductContent         `json:"content" yaml:"content"`
 }
 
-// ProductUpdate contains fields used when updating a product.
-type ProductUpdate struct {
-	EAN  string      `json:"ean" yaml:"ean"`
-	URL  string      `json:"url" yaml:"url"`
-	Name string      `json:"name" yaml:"name"`
-	Data ProductData `json:"data" yaml:"data"`
+// ProductImageApply contains the product image data.
+type ProductImageApply struct {
+	Path  string `json:"path" yaml:"path"`
+	Title string `json:"title" yaml:"title"`
+}
+
+// ProductPricingApply contains the product pricing data.
+type ProductPricingApply struct {
+	TierRef   string  `json:"tier_ref" yaml:"tier_ref"`
+	UnitPrice float64 `json:"unit_price" yaml:"unit_price"`
 }
 
 // Product contains all the fields that comprise a product in the catalog.
 type Product struct {
-	SKU      string      `json:"sku" yaml:"sku,omitempty"`
-	EAN      string      `json:"ean" yaml:"ean"`
-	URL      string      `json:"url" yaml:"url"`
-	Name     string      `json:"name" yaml:"name"`
-	Data     ProductData `json:"data" yaml:"data"`
-	Created  time.Time   `json:"created,omitempty"`
-	Modified time.Time   `json:"modified,omitempty"`
+	SKU      string                     `json:"sku" yaml:"sku"`
+	EAN      string                     `json:"ean" yaml:"ean"`
+	Path     string                     `json:"path" yaml:"path"`
+	Name     string                     `json:"name" yaml:"name"`
+	Images   []*ProductImage            `json:"images" yaml:"images"`
+	Pricing  map[string]*ProductPricing `json:"pricing" yaml:"pricing"`
+	Content  ProductContent             `json:"content" yaml:"content"`
+	Created  time.Time                  `json:"created,omitempty"`
+	Modified time.Time                  `json:"modified,omitempty"`
 }
 
-// UpdateProduct calls the API Service to update an existing product.
-func (c *EcomClient) UpdateProduct(sku string, p *ProductUpdate) (*Product, error) {
+// ProductImage struct for capturing OpReplaceProduct JSON response.
+type ProductImage struct {
+	UUID     string    `json:"uuid"`
+	SKU      string    `json:"sku"`
+	Path     string    `json:"path"`
+	GSURL    string    `json:"gsurl"`
+	Width    uint      `json:"width"`
+	Height   uint      `json:"height"`
+	Size     uint      `json:"size"`
+	Created  time.Time `json:"created"`
+	Modified time.Time `json:"modified"`
+}
+
+// ProductPricing
+type ProductPricing struct {
+	UnitPrice float64   `json:"unit_price" yaml:"unit_price"`
+	Created   time.Time `json:"created" yaml:"created"`
+	Modified  time.Time `json:"modified" yaml:"modified"`
+}
+
+// ReplaceProduct calls the API Service creating a new product or, if
+// the product already exists updating it.
+func (c *EcomClient) ReplaceProduct(sku string, p *ProductApply) (*Product, error) {
 	payload, err := json.Marshal(&p)
 	if err != nil {
-		return nil, errors.Wrapf(err, "update product sku=%q failed", sku)
+		return nil, errors.Wrapf(err, "update product sku=%s failed", sku)
 	}
 	uri := c.endpoint + "/products/" + sku
 	body := strings.NewReader(string(payload))
@@ -64,32 +103,9 @@ func (c *EcomClient) UpdateProduct(sku string, p *ProductUpdate) (*Product, erro
 	}
 	pr := Product{}
 	if err = json.NewDecoder(res.Body).Decode(&pr); err != nil {
-		return nil, errors.Wrapf(err, "create product response decode failed")
+		return nil, errors.Wrapf(err, "replce product response decode failed")
 	}
 	return &pr, nil
-}
-
-// CreateProduct calls the API Service to create a new product.
-func (c *EcomClient) CreateProduct(p *ProductCreate) (*Product, error) {
-	payload, err := json.Marshal(&p)
-	if err != nil {
-		return nil, errors.Wrapf(err, "create product sku=%q failed", p.SKU)
-	}
-	uri := c.endpoint + "/products"
-	body := strings.NewReader(string(payload))
-	res, err := c.request(http.MethodPost, uri, body)
-	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
-	}
-	defer res.Body.Close()
-	if res.StatusCode >= 400 {
-		return nil, errors.Errorf("HTTP POST to %q return %s", uri, res.Status)
-	}
-	productResponse := Product{}
-	if err := json.NewDecoder(res.Body).Decode(&productResponse); err != nil {
-		return nil, errors.Wrapf(err, "create product response decode failed")
-	}
-	return &productResponse, nil
 }
 
 // GetProduct calls the API Service to get a product by SKU.
@@ -100,6 +116,12 @@ func (c *EcomClient) GetProduct(sku string) (*Product, error) {
 		return nil, errors.Wrap(err, "request failed")
 	}
 	defer res.Body.Close()
+
+	if res.StatusCode == 404 {
+		return nil, ErrProductNotFound
+	} else if res.StatusCode >= 400 {
+		return nil, errors.Errorf("HTTP GET to %q returned %s", uri, res.Status)
+	}
 	p := Product{}
 	if err := json.NewDecoder(res.Body).Decode(&p); err != nil {
 		return nil, errors.Wrapf(err, "get product response decode failed")

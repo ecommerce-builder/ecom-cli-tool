@@ -12,7 +12,7 @@ import (
 type Category struct {
 	Segment    string      `json:"segment" yaml:"segment"`
 	Name       string      `json:"name" yaml:"name"`
-	Categories []*Category `json:"categories" yaml:"categories"`
+	Categories []*Category `json:"categories" yaml:"categories,omitempty"`
 }
 
 // A Catalog contains a single root node of the catalog.
@@ -27,7 +27,7 @@ func (c *EcomClient) UpdateCatalog(cats Category) error {
 	if err != nil {
 		return errors.Wrapf(err, "client: json marshal failed")
 	}
-	uri := c.endpoint + "/catalog"
+	uri := c.endpoint + "/categories"
 	body := strings.NewReader(string(payload))
 	res, err := c.request(http.MethodPut, uri, body)
 	if err != nil {
@@ -42,7 +42,7 @@ func (c *EcomClient) UpdateCatalog(cats Category) error {
 
 // PurgeCatalog calls the API Service to purge the entire catalog.
 func (c *EcomClient) PurgeCatalog() error {
-	uri := c.endpoint + "/catalog"
+	uri := c.endpoint + "/categories"
 	res, err := c.request(http.MethodDelete, uri, nil)
 	if err != nil {
 		return errors.Wrap(err, "request failed")
@@ -50,7 +50,8 @@ func (c *EcomClient) PurgeCatalog() error {
 	defer res.Body.Close()
 	if res.StatusCode >= 400 {
 		var e struct {
-			Code    int    `json:"code"`
+			Status  int    `json:"status"`
+			Code    string `json:"code"`
 			Message string `json:"message"`
 		}
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {

@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v2"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
