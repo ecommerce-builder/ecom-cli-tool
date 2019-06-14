@@ -7,6 +7,7 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/customers"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/products"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/profiles"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/token"
 
 	"github.com/spf13/cobra"
 )
@@ -29,6 +30,7 @@ func NewEcomCmd() *cobra.Command {
 	cmd.AddCommand(profiles.NewCmdProfiles())
 	cmd.AddCommand(NewCmdCompletion())
 	cmd.AddCommand(NewCmdSysInfo())
+	cmd.AddCommand(token.NewCmdToken())
 	cmd.AddCommand(NewCmdVersion())
 	return cmd
 }
