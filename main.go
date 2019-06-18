@@ -7,7 +7,7 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd"
 )
 
-var version string = "v0.11.0"
+var version string = "v0.12.0"
 
 func main() {
 	cmd.Version = version

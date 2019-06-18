@@ -27,32 +27,26 @@ type AssocProduct struct {
 	Modified time.Time `json:"modified,omitempty"`
 }
 
-// SAssoc details a catalog association including products.
-type SAssoc struct {
-	Path     string         `json:"path"`
+// AssocResponse details a catalog association including products.
+type AssocResponse struct {
 	Products []AssocProduct `json:"products"`
 }
 
 // GetCatalogAssocs calls the API Service to get all catalog associations.
-func (c *EcomClient) GetCatalogAssocs() (map[string][]AssocProduct, error) {
+func (c *EcomClient) GetCatalogAssocs() (map[string]AssocResponse, error) {
 	uri := c.endpoint + "/assocs"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
 	}
 	defer res.Body.Close()
-	cpos := make([]*SAssoc, 0)
-	err = json.NewDecoder(res.Body).Decode(&cpos)
+
+	assocs := make(map[string]AssocResponse)
+	err = json.NewDecoder(res.Body).Decode(&assocs)
 	if err != nil {
 		return nil, errors.Wrapf(err, "get product response decode failed")
 	}
-	assocs := make(map[string][]AssocProduct)
-	for _, v := range cpos {
-		if _, ok := assocs[v.Path]; !ok {
-			assocs[v.Path] = v.Products
-		}
-	}
-	return assocs, nil
+	return nil, nil
 }
 
 // UpdateCatalogAssocs calls the API Service to update all catalog associations.
