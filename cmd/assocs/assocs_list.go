@@ -33,10 +33,12 @@ func NewCmdAssocsList() *cobra.Command {
 				log.Fatal(err)
 			}
 
-			for k, assoc := range assocs {
-				fmt.Printf("%s:\n", k)
-				for _, p := range assoc {
-					fmt.Printf("\t%s\n", p.SKU)
+			fmt.Println("associations:")
+			for path, assoc := range assocs {
+				fmt.Printf("  %s:\n", path)
+				fmt.Println("    products:")
+				for _, p := range assoc.Products {
+					fmt.Printf("      - %s\n", p.SKU)
 				}
 			}
 			os.Exit(0)
