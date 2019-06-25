@@ -17,6 +17,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+var Version string
+var userAgent string
+
 // EcomClient structure.
 type EcomClient struct {
 	endpoint string
@@ -351,6 +354,7 @@ func (c *EcomClient) SysInfo() (*SysInfo, error) {
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.jwt)
+	req.Header.Set("User-Agent", fmt.Sprintf("ecom/%s", Version))
 	res, err := c.client.Do(req)
 	if err != nil {
 		return nil, errors.Wrapf(err, "HTTP GET to %v failed", uri)
