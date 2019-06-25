@@ -1,4 +1,14 @@
 # CHANGELOG
+
+## v0.13.0 (Tue 25 Jun 2019)
++ Requires API `v0.49.0` onwards.
++ API `v0.49.0` returns Google GAE Project ID and Firebase separately so `ecom sysinfo` has new output.
++ Makefile for building removing hardcoded `version` string value from `main.go`.
+
+## v0.12.1 (Tue 18 Jun 2019)
++ Fixed associations list.
++ Requires API `v0.46.1`.
+
 ## v0.11.0 (Fri 6 Jun 2019)
 + Alter `build.sh` script to do binary builds only.
 + Reverting to `yaml.v2` as `yaml.v3` has a bug causing crashes whilst applying associations.
@@ -61,7 +71,7 @@
 + `ecom assocs <assocs.yaml>` apply a new catalog associations YAML file.
 + `ecom assocs list` list current associations.
 + `ecom assocs purge` purge the existing catalog associations.
- 
+
 ## v0.1.0 (Thu 18 Apr 2019)
 + Initial command line tool providing `apply <product.yaml` feature.
 + Requires API v0.22.0 or above.

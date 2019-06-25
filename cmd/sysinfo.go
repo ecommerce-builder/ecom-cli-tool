@@ -32,8 +32,10 @@ func NewCmdSysInfo() *cobra.Command {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
+
 			format := "%v\t%v\t\n"
 			tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
+
 			fmt.Fprintf(tw, format, "Ecom CLI Tool", "")
 			fmt.Fprintf(tw, format, "-------------", "")
 			fmt.Fprintf(tw, format, "Client Version", Version)
@@ -54,8 +56,9 @@ func NewCmdSysInfo() *cobra.Command {
 			fmt.Fprintf(tw, format, "", "")
 			fmt.Fprintf(tw, format, "Google", "")
 			fmt.Fprintf(tw, format, "------", "")
-			fmt.Fprintf(tw, format, "Project ID", sysInfo.Env.Goog.ProjectID)
-			fmt.Fprintf(tw, format, "Web API Key", sysInfo.Env.Goog.WebAPIKey)
+			fmt.Fprintf(tw, format, "GAE Project ID", sysInfo.Env.Goog.ProjectID)
+			fmt.Fprintf(tw, format, "Firebase Project ID", sysInfo.Env.Firebase.ProjectID)
+			fmt.Fprintf(tw, format, "Firebase Web API Key", sysInfo.Env.Firebase.WebAPIKey)
 			fmt.Fprintf(tw, format, "", "")
 			fmt.Fprintf(tw, format, "App", "")
 			fmt.Fprintf(tw, format, "---", "")

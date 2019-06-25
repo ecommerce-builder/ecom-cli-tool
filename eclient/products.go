@@ -76,7 +76,7 @@ type ProductImage struct {
 	Modified time.Time `json:"modified"`
 }
 
-// ProductPricing
+// ProductPricing struct
 type ProductPricing struct {
 	UnitPrice float64   `json:"unit_price" yaml:"unit_price"`
 	Created   time.Time `json:"created" yaml:"created"`

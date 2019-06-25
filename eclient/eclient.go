@@ -37,8 +37,12 @@ type sysInfoPg struct {
 }
 
 type sysInfoGoog struct {
-	ProjectID string `json:"ECOM_GOOGLE_PROJECT_ID"`
-	WebAPIKey string `json:"ECOM_GOOGLE_WEB_API_KEY"`
+	ProjectID string `json:"ECOM_GAE_PROJECT_ID"`
+}
+
+type sysInfoFirebase struct {
+	ProjectID string `json:"ECOM_FIREBASE_PROJECT_ID"`
+	WebAPIKey string `json:"ECOM_FIREBASE_WEB_API_KEY"`
 }
 
 type sysInfoApp struct {
@@ -47,9 +51,10 @@ type sysInfoApp struct {
 }
 
 type sysInfoEnv struct {
-	Pg   sysInfoPg   `json:"pg"`
-	Goog sysInfoGoog `json:"google"`
-	App  sysInfoApp  `json:"app"`
+	Pg       sysInfoPg       `json:"pg"`
+	Goog     sysInfoGoog     `json:"google"`
+	Firebase sysInfoFirebase `json:"firebase"`
+	App      sysInfoApp      `json:"app"`
 }
 
 // SysInfo provides a record of system information.
@@ -153,7 +158,7 @@ func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 	}
 	tar, err := configmgr.ReadTokenAndRefreshToken(file)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "tokenand refresh token cannot be read from %q: %v", file, err)
+		fmt.Fprintf(os.Stderr, "token and refresh token cannot be read from %q: %v", file, err)
 		os.Exit(1)
 	}
 	var p jwt.Parser
@@ -163,11 +168,11 @@ func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 
 	// If the token has expired, use the refresh token to get another
 	if claims.ExpiresAt-utcNow <= 0 {
-		g, err := c.GetConfig()
+		f, err := c.GetConfig()
 		if err != nil {
 			log.Fatal(err)
 		}
-		tar, err = c.ExchangeRefreshTokenForIDToken(g.WebAPIKey, tar.RefreshToken)
+		tar, err = c.ExchangeRefreshTokenForIDToken(f.WebAPIKey, tar.RefreshToken)
 		if err != nil {
 			return errors.Wrap(err, "exchange refresh token for id token failed")
 		}
@@ -390,16 +395,16 @@ func (c *EcomClient) GetCatalog() (*Category, error) {
 	return tree, nil
 }
 
-// Goog holds the Google Project ID and Web API Key configuration values.
-type Goog struct {
-	ProjectID string `json:"ECOM_GOOGLE_PROJECT_ID"`
-	WebAPIKey string `json:"ECOM_GOOGLE_WEB_API_KEY"`
+// Firebase holds the Google Project ID and Web API Key configuration values.
+type Firebase struct {
+	ProjectID string `json:"ECOM_FIREBASE_PROJECT_ID"`
+	WebAPIKey string `json:"ECOM_FIREBASE_WEB_API_KEY"`
 }
 
 // GetConfig gets the Google Project ID and Google Web API Key from the
 // server. HTTP GET /configs is a public resource and requires no
 // authorization or token.
-func (c *EcomClient) GetConfig() (*Goog, error) {
+func (c *EcomClient) GetConfig() (*Firebase, error) {
 	uri := c.endpoint + "/config"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
@@ -411,9 +416,9 @@ func (c *EcomClient) GetConfig() (*Goog, error) {
 		return nil, errors.Wrapf(err, "http do to %v failed", uri)
 	}
 	defer res.Body.Close()
-	var g *Goog
-	if err := json.NewDecoder(res.Body).Decode(&g); err != nil {
+	var f *Firebase
+	if err := json.NewDecoder(res.Body).Decode(&f); err != nil {
 		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
 	}
-	return g, nil
+	return f, nil
 }
