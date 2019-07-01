@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.13.2 (Mon 1 Jul 2019)
++ API uses integers for pricing not floats.
++ Use `pkg/errors` for better error handling.
+
 ## v0.13.1 (Mon 1 Jul 2019)
 + `/assocs` changed to `/associations` in API `v0.50.0`.
 + Fix bug with `GetCatalogAssocs` always returning nil map.

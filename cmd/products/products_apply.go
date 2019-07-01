@@ -1,7 +1,6 @@
 package products
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -12,6 +11,8 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
+
+	"github.com/pkg/errors"
 )
 
 type productContainer struct {
@@ -39,16 +40,17 @@ func NewCmdProductsApply() *cobra.Command {
 
 			isDir, err := isDirectory(args[0])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%v\n", err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
 			}
 			if !isDir {
+				fmt.Println("1")
 				if err := applyProduct(client, args[0]); err != nil {
 					if err == errMissingEAN {
 						fmt.Fprintf(os.Stderr, "Skipping %s as EAN is missing\n", args[0])
 						os.Exit(1)
 					}
-					fmt.Fprintf(os.Stderr, "%v\n", err)
+					fmt.Fprintf(os.Stderr, "%+v\n", err)
 					os.Exit(1)
 				}
 				os.Exit(0)
@@ -56,7 +58,7 @@ func NewCmdProductsApply() *cobra.Command {
 
 			matches, err := filepath.Glob(args[0] + "/*.yaml")
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%v\n", err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
 			}
 
@@ -66,7 +68,7 @@ func NewCmdProductsApply() *cobra.Command {
 						fmt.Fprintf(os.Stderr, "Skipping %s as EAN is missing\n", file)
 						continue
 					}
-					fmt.Fprintf(os.Stderr, "%v\n", err)
+					fmt.Fprintf(os.Stderr, "%+v\n", err)
 					os.Exit(1)
 				}
 			}
@@ -81,7 +83,7 @@ var errMissingEAN = errors.New("missing EAN")
 func applyProduct(ec *eclient.EcomClient, filen string) error {
 	file, err := os.Open(filen)
 	if err != nil {
-		return err
+		return errors.Wrapf(err, "os.Open(%q) failed", filen)
 	}
 	defer file.Close()
 	p := productContainer{}
@@ -110,7 +112,7 @@ func applyProduct(ec *eclient.EcomClient, filen string) error {
 func isDirectory(path string) (bool, error) {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
-		return false, err
+		return false, errors.Wrapf(err, "os.Stat(%q) failed", path)
 	}
 	return fileInfo.IsDir(), err
 }

@@ -17,7 +17,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Version string
 var Version string
+
 var userAgent string
 
 // EcomClient structure.

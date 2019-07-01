@@ -46,8 +46,8 @@ type ProductImageApply struct {
 
 // ProductPricingApply contains the product pricing data.
 type ProductPricingApply struct {
-	TierRef   string  `json:"tier_ref" yaml:"tier_ref"`
-	UnitPrice float64 `json:"unit_price" yaml:"unit_price"`
+	TierRef   string `json:"tier_ref" yaml:"tier_ref"`
+	UnitPrice int    `json:"unit_price" yaml:"unit_price"`
 }
 
 // Product contains all the fields that comprise a product in the catalog.
