@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.13.1 (Mon 1 Jul 2019)
++ `/assocs` changed to `/associations` in API `v0.50.0`.
++ Fix bug with `GetCatalogAssocs` always returning nil map.
++ `assocs list` displays associations in sorted order. Maps have randomized keys.
+
 ## v0.13.0 (Tue 25 Jun 2019)
 + Requires API `v0.49.0` onwards.
 + API `v0.49.0` returns Google GAE Project ID and Firebase separately so `ecom sysinfo` has new output.

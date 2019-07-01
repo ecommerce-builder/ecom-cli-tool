@@ -34,7 +34,7 @@ type AssocResponse struct {
 
 // GetCatalogAssocs calls the API Service to get all catalog associations.
 func (c *EcomClient) GetCatalogAssocs() (map[string]AssocResponse, error) {
-	uri := c.endpoint + "/assocs"
+	uri := c.endpoint + "/associations"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
 		return nil, errors.Wrap(err, "request failed")
@@ -46,7 +46,7 @@ func (c *EcomClient) GetCatalogAssocs() (map[string]AssocResponse, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "get product response decode failed")
 	}
-	return nil, nil
+	return assocs, nil
 }
 
 // UpdateCatalogAssocs calls the API Service to update all catalog associations.
@@ -55,7 +55,7 @@ func (c *EcomClient) UpdateCatalogAssocs(assocs map[string]*Assoc) error {
 	if err != nil {
 		return errors.Wrapf(err, "client: json marshal failed")
 	}
-	uri := c.endpoint + "/assocs"
+	uri := c.endpoint + "/associations"
 	body := strings.NewReader(string(payload))
 	res, err := c.request(http.MethodPut, uri, body)
 	if err != nil {
@@ -92,7 +92,7 @@ func (c *EcomClient) UpdateCatalogAssocs(assocs map[string]*Assoc) error {
 
 // PurgeCatalogAssocs calls the API Service to delete all catalog associations.
 func (c *EcomClient) PurgeCatalogAssocs() error {
-	uri := c.endpoint + "/assocs"
+	uri := c.endpoint + "/associations"
 	res, err := c.request(http.MethodDelete, uri, nil)
 	if err != nil {
 		return errors.Wrap(err, "request failed")

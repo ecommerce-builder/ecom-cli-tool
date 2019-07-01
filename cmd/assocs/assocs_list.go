@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
@@ -33,11 +34,19 @@ func NewCmdAssocsList() *cobra.Command {
 				log.Fatal(err)
 			}
 
+			// To store the paths in slice in sorted order
+			var paths []string
+			for p := range assocs {
+				paths = append(paths, p)
+			}
+			sort.Strings(paths)
+
+			// Display the associations in order
 			fmt.Println("associations:")
-			for path, assoc := range assocs {
+			for _, path := range paths {
 				fmt.Printf("  %s:\n", path)
 				fmt.Println("    products:")
-				for _, p := range assoc.Products {
+				for _, p := range assocs[path].Products {
 					fmt.Printf("      - %s\n", p.SKU)
 				}
 			}
