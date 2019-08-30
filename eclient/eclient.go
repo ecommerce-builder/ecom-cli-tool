@@ -68,9 +68,9 @@ type SysInfo struct {
 	Env        sysInfoEnv `json:"env"`
 }
 
-// Customer details
-type Customer struct {
-	UUID      string    `json:"uuid"`
+// User details
+type User struct {
+	ID        string    `json:"id"`
 	UID       string    `json:"uid"`
 	Role      string    `json:"role"`
 	Email     string    `json:"email"`
@@ -85,8 +85,8 @@ type devKeyRequest struct {
 }
 
 type tokenAndCustomerResponse struct {
-	CustomToken string   `json:"custom_token"`
-	Customer    Customer `json:"customer"`
+	CustomToken string `json:"custom_token"`
+	User        User   `json:"user"`
 }
 
 var timeout = time.Duration(10 * time.Second)
@@ -144,12 +144,10 @@ type exchangeRefreshTokenResponse struct {
 	ProjectID    string `json:"project_id"`
 }
 
-type ertBadRequestResponse struct {
-	Error struct {
-		Code    int64  `json:"code"`
-		Message string `json:"message"`
-		Status  string `json:"status"`
-	} `json:"error"`
+type badRequestResponse struct {
+	Status  int    `json:"status"`
+	Code    string `json:"code"`
+	Message string `json:"message"`
 }
 
 // SetToken accepts an EcomConfigEntry and derives the token and refresh
@@ -177,7 +175,7 @@ func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 		if err != nil {
 			log.Fatal(err)
 		}
-		tar, err = c.ExchangeRefreshTokenForIDToken(f.WebAPIKey, tar.RefreshToken)
+		tar, err = c.ExchangeRefreshTokenForIDToken(f.APIKEY, tar.RefreshToken)
 		if err != nil {
 			return errors.Wrap(err, "exchange refresh token for id token failed")
 		}
@@ -229,11 +227,11 @@ func (c *EcomClient) ExchangeRefreshTokenForIDToken(firebaseAPIKey, refreshToken
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
-		var badReqRes ertBadRequestResponse
+		var e badRequestResponse
 		body, _ := ioutil.ReadAll(res.Body)
-		err = json.Unmarshal(body, &badReqRes)
+		err = json.Unmarshal(body, &e)
 		if err != nil {
-			return nil, errors.Wrapf(err, "%d %s\n", badReqRes.Error.Code, badReqRes.Error.Message)
+			return nil, errors.Wrapf(err, "%d %s\n", e.Code, e.Message)
 		}
 
 	}
@@ -316,13 +314,16 @@ func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(firebaseAPIKey, tok
 
 // SignInWithDevKey exchanges a Developer Key for a Customer token.
 // https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=[API_KEY]
-func (c *EcomClient) SignInWithDevKey(key string) (token string, customer *Customer, err error) {
+func (c *EcomClient) SignInWithDevKey(key string) (token string, user *User, err error) {
 	uri := c.endpoint + "/signin-with-devkey"
 	payload := devKeyRequest{
 		Key: key,
 	}
 	buf := new(bytes.Buffer)
 	json.NewEncoder(buf).Encode(payload)
+
+	fmt.Println(buf)
+
 	req, err := http.NewRequest("POST", uri, buf)
 	if err != nil {
 		return "", nil, fmt.Errorf("error creating new POST request: %v", err)
@@ -344,7 +345,7 @@ func (c *EcomClient) SignInWithDevKey(key string) (token string, customer *Custo
 	if err != nil {
 		return "", nil, errors.Wrap(err, "custom token json decode error")
 	}
-	return ct.CustomToken, &ct.Customer, nil
+	return ct.CustomToken, &ct.User, nil
 }
 
 // SysInfo retrieves the System Info from the API endpoint.
@@ -374,43 +375,27 @@ func (c *EcomClient) SysInfo() (*SysInfo, error) {
 	return &sysInfo, nil
 }
 
-// GetCatalog returns a slice of NestedSetNodes.
-func (c *EcomClient) GetCatalog() (*Category, error) {
-	uri := c.endpoint + "/categories"
-	req, err := http.NewRequest("GET", uri, nil)
-	if err != nil {
-		return nil, errors.Wrap(err, "http new request failed")
-	}
-
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.jwt)
-	res, err := c.client.Do(req)
-	if err != nil {
-		return nil, errors.Wrapf(err, "http do to %v failed", uri)
-	}
-	defer res.Body.Close()
-
-	if res.StatusCode >= 400 {
-		return nil, errors.Wrapf(err, "%s", res.Status)
-	}
-
-	var tree *Category
-	if err := json.NewDecoder(res.Body).Decode(&tree); err != nil {
-		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
-	}
-	return tree, nil
+// ConfigContainerResponse container
+type ConfigContainerResponse struct {
+	Object         string                  `json:"object"`
+	FirebaseConfig *FirebaseConfigResponse `json:"firebaseConfig"`
 }
 
-// Firebase holds the Google Project ID and Web API Key configuration values.
-type Firebase struct {
-	ProjectID string `json:"ECOM_FIREBASE_PROJECT_ID"`
-	WebAPIKey string `json:"ECOM_FIREBASE_WEB_API_KEY"`
+// FirebaseConfigResponse firebase config response
+type FirebaseConfigResponse struct {
+	APIKEY            string `json:"apiKey"`
+	AuthDomain        string `json:"authDomain"`
+	DatabaseURL       string `json:"databaseURL"`
+	ProjectID         string `json:"projectId"`
+	StorageBucket     string `json:"storageBucket"`
+	MessagingSenderID string `json:"messagingSenderId"`
+	AppID             string `json:"appId"`
 }
 
-// GetConfig gets the Google Project ID and Google Web API Key from the
-// server. HTTP GET /configs is a public resource and requires no
+// GetConfig gets the Firebase Config from the server.
+// HTTP GET /config is a public resource and requires no
 // authorization or token.
-func (c *EcomClient) GetConfig() (*Firebase, error) {
+func (c *EcomClient) GetConfig() (*FirebaseConfigResponse, error) {
 	uri := c.endpoint + "/config"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
@@ -422,9 +407,9 @@ func (c *EcomClient) GetConfig() (*Firebase, error) {
 		return nil, errors.Wrapf(err, "http do to %v failed", uri)
 	}
 	defer res.Body.Close()
-	var f *Firebase
+	var f *ConfigContainerResponse
 	if err := json.NewDecoder(res.Body).Decode(&f); err != nil {
 		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
 	}
-	return f, nil
+	return f.FirebaseConfig, nil
 }

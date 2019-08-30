@@ -1,4 +1,4 @@
-package assocs
+package pcrelations
 
 import (
 	"fmt"
@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewCmdAssocsList returns new initialized instance of list sub command
-func NewCmdAssocsList() *cobra.Command {
+// NewCmdPCRelationsList returns new initialized instance of list sub command
+func NewCmdPCRelationsList() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -21,7 +21,7 @@ func NewCmdAssocsList() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "list",
-		Short: "List all catalog associations",
+		Short: "List all product to category relations",
 		Run: func(cmd *cobra.Command, args []string) {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
@@ -29,14 +29,14 @@ func NewCmdAssocsList() *cobra.Command {
 				log.Fatal(err)
 			}
 
-			assocs, err := client.GetCatalogAssocs()
+			pcrelations, err := client.GetCatalogAssocs()
 			if err != nil {
 				log.Fatal(err)
 			}
 
 			// To store the paths in slice in sorted order
 			var paths []string
-			for p := range assocs {
+			for p := range pcrelations {
 				paths = append(paths, p)
 			}
 			sort.Strings(paths)
@@ -46,7 +46,7 @@ func NewCmdAssocsList() *cobra.Command {
 			for _, path := range paths {
 				fmt.Printf("  %s:\n", path)
 				fmt.Println("    products:")
-				for _, p := range assocs[path].Products {
+				for _, p := range pcrelations[path].Products {
 					fmt.Printf("      - %s\n", p.SKU)
 				}
 			}

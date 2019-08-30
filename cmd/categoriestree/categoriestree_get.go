@@ -1,4 +1,4 @@
-package catalog
+package categoriestree
 
 import (
 	"fmt"
@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewCmdCatalogGet returns new initialized instance of list get command
-func NewCmdCatalogGet() *cobra.Command {
+// NewCmdCategoriesTreeGet returns new initialized instance of list get command
+func NewCmdCategoriesTreeGet() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -20,25 +20,26 @@ func NewCmdCatalogGet() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "get",
-		Short: "Get the catalog hierarchy",
+		Short: "Get the categories tree",
 		Run: func(cmd *cobra.Command, args []string) {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
 				log.Fatal(err)
 			}
-			root, err := client.GetCatalog()
+			root, err := client.GetCategoriesTree()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
+
 			treeView(root, 0, false)
 		},
 	}
 	return cmd
 }
 
-func treeView(node *eclient.Category, depth int, lastSibling bool) {
+func treeView(node *eclient.CategoryResponse, depth int, lastSibling bool) {
 	// fmt.Printf("%+v\n", node)
 	// fmt.Printf("node.Name=%s last sibling=%t\n", node.Name, lastSibling)
 	var arm string
@@ -59,8 +60,8 @@ func treeView(node *eclient.Category, depth int, lastSibling bool) {
 		fmt.Print(arm)
 	}
 	fmt.Printf("%s (%s)\n", node.Segment, node.Name)
-	lastIdx := len(node.Categories) - 1
-	for i, n := range node.Categories {
+	lastIdx := len(node.Categories.Data) - 1
+	for i, n := range node.Categories.Data {
 		treeView(n, depth+1, lastIdx == i)
 	}
 }

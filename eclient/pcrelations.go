@@ -49,13 +49,14 @@ func (c *EcomClient) GetCatalogAssocs() (map[string]AssocResponse, error) {
 	return assocs, nil
 }
 
-// UpdateCatalogAssocs calls the API Service to update all catalog associations.
-func (c *EcomClient) UpdateCatalogAssocs(assocs map[string]*Assoc) error {
+// UpdateProductCategoryRelations calls the API Service to update all
+// product to category relations.
+func (c *EcomClient) UpdateProductCategoryRelations(assocs map[string]*Assoc) error {
 	payload, err := json.Marshal(&assocs)
 	if err != nil {
 		return errors.Wrapf(err, "client: json marshal failed")
 	}
-	uri := c.endpoint + "/associations"
+	uri := c.endpoint + "/products-categories"
 	body := strings.NewReader(string(payload))
 	res, err := c.request(http.MethodPut, uri, body)
 	if err != nil {
@@ -90,14 +91,16 @@ func (c *EcomClient) UpdateCatalogAssocs(assocs map[string]*Assoc) error {
 	return nil
 }
 
-// PurgeCatalogAssocs calls the API Service to delete all catalog associations.
-func (c *EcomClient) PurgeCatalogAssocs() error {
-	uri := c.endpoint + "/associations"
+// DeleteProductCategoryRelations calls the API Service to delete all
+// product to category relations.
+func (c *EcomClient) DeleteProductCategoryRelations() error {
+	uri := c.endpoint + "/products-categories"
 	res, err := c.request(http.MethodDelete, uri, nil)
 	if err != nil {
 		return errors.Wrap(err, "request failed")
 	}
 	defer res.Body.Close()
+
 	if res.StatusCode >= 400 {
 		return errors.Errorf("unauthorized")
 	}

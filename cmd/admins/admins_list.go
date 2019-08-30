@@ -34,10 +34,10 @@ func NewCmdAdminsList() *cobra.Command {
 			}
 			format := "%v\t%v\t%v\t%v\t%v\n"
 			tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
-			fmt.Fprintf(tw, format, "Name", "Email", "UID", "UUID", "Created")
+			fmt.Fprintf(tw, format, "Name", "Email", "UID", "ID", "Created")
 			fmt.Fprintf(tw, format, "----", "-----", "---", "----", "-------")
 			for _, admin := range admins {
-				fmt.Fprintf(tw, format, admin.Firstname+" "+admin.Lastname, admin.Email, admin.UID, admin.UUID, admin.Created)
+				fmt.Fprintf(tw, format, admin.Firstname+" "+admin.Lastname, admin.Email, admin.UID, admin.ID, admin.Created)
 			}
 			tw.Flush()
 			os.Exit(0)

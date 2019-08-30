@@ -1,4 +1,4 @@
-package assocs
+package pcrelations
 
 import (
 	"fmt"
@@ -13,8 +13,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewCmdAssocsApply returns new initialized instance of apply sub command
-func NewCmdAssocsApply() *cobra.Command {
+// NewCmdPCRelationsApply returns new initialized instance of apply sub command
+func NewCmdPCRelationsApply() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -22,7 +22,7 @@ func NewCmdAssocsApply() *cobra.Command {
 	}
 	var cmd = &cobra.Command{
 		Use:   "apply <assocs.yaml>",
-		Short: "Create or update an exising catalog association set.",
+		Short: "Replace all product to category relations",
 		Long:  ``,
 
 		Args: cobra.ExactArgs(1),
@@ -46,7 +46,7 @@ func NewCmdAssocsApply() *cobra.Command {
 				log.Fatalf("error: %v", err)
 			}
 
-			err = client.UpdateCatalogAssocs(assocs.Assocs)
+			err = client.UpdateProductCategoryRelations(assocs.Assocs)
 			if err != nil {
 				log.Fatal(err)
 			}

@@ -15,10 +15,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type productContainer struct {
-	Product eclient.ProductApply `yaml:"product"`
-}
-
 // NewCmdProductsApply returns new initialized instance of the apply sub command
 func NewCmdProductsApply() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
@@ -38,14 +34,22 @@ func NewCmdProductsApply() *cobra.Command {
 				log.Fatal(err)
 			}
 
+			// load all products
+			pcontainer, err := client.GetProducts()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
+			}
+
+			products := pcontainer.Data
+
 			isDir, err := isDirectory(args[0])
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
 			}
 			if !isDir {
-				fmt.Println("1")
-				if err := applyProduct(client, args[0]); err != nil {
+				if err := applyProduct(client, products, args[0]); err != nil {
 					if err == errMissingEAN {
 						fmt.Fprintf(os.Stderr, "Skipping %s as EAN is missing\n", args[0])
 						os.Exit(1)
@@ -63,7 +67,7 @@ func NewCmdProductsApply() *cobra.Command {
 			}
 
 			for _, file := range matches {
-				if err := applyProduct(client, file); err != nil {
+				if err := applyProduct(client, products, file); err != nil {
 					if err == errMissingEAN {
 						fmt.Fprintf(os.Stderr, "Skipping %s as EAN is missing\n", file)
 						continue
@@ -80,29 +84,43 @@ func NewCmdProductsApply() *cobra.Command {
 
 var errMissingEAN = errors.New("missing EAN")
 
-func applyProduct(ec *eclient.EcomClient, filen string) error {
-	file, err := os.Open(filen)
+func findProductBySKU(products []*eclient.ProductResponse, sku string) *eclient.ProductResponse {
+	for _, p := range products {
+		if sku == p.SKU {
+			return p
+		}
+	}
+	return nil
+}
+
+func applyProduct(ec *eclient.EcomClient, products []*eclient.ProductResponse, filename string) error {
+	file, err := os.Open(filename)
 	if err != nil {
-		return errors.Wrapf(err, "os.Open(%q) failed", filen)
+		return errors.Wrapf(err, "os.Open(%q) failed", filename)
 	}
 	defer file.Close()
-	p := productContainer{}
+
+	container := eclient.ProductContainerYAML{}
 	dec := yaml.NewDecoder(file)
-	if err := dec.Decode(&p); err != nil {
+	if err := dec.Decode(&container); err != nil {
 		return err
 	}
-	//if p.Product.EAN == "" {
-	//	return errMissingEAN
-	//}
-	pu := eclient.ProductApply{
-		EAN:     p.Product.EAN,
-		Path:    p.Product.Path,
-		Name:    p.Product.Name,
-		Images:  p.Product.Images,
-		Pricing: p.Product.Pricing,
-		Content: p.Product.Content,
+
+	product := findProductBySKU(products, container.Product.SKU)
+	request := eclient.ProductRequest{
+		Path: container.Product.Path,
+		SKU:  container.Product.SKU,
+		Name: container.Product.Name,
 	}
-	_, err = ec.ReplaceProduct(p.Product.SKU, &pu)
+	if product != nil {
+		_, err = ec.ReplaceProduct(product.ID, &request)
+		if err != nil {
+			return err
+		}
+		return nil
+	}
+
+	_, err = ec.CreateProduct(&request)
 	if err != nil {
 		return err
 	}

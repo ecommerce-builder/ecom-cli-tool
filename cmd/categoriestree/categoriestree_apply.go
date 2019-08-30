@@ -1,4 +1,4 @@
-package catalog
+package categoriestree
 
 import (
 	"fmt"
@@ -30,8 +30,8 @@ func isValidEndpoint(ep string, valid []string) (bool, error) {
 	return false, nil
 }
 
-// NewCmdCatalogApply returns new initialized instance of apply sub command
-func NewCmdCatalogApply() *cobra.Command {
+// NewCmdCategoriesTreeApply returns new initialized instance of apply sub command
+func NewCmdCategoriesTreeApply() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
@@ -40,7 +40,7 @@ func NewCmdCatalogApply() *cobra.Command {
 
 	var cmd = &cobra.Command{
 		Use:   "apply <catalog.yaml>",
-		Short: "Create or update the shop catalog.",
+		Short: "Replace the categories tree",
 
 		Args: cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -56,7 +56,7 @@ func NewCmdCatalogApply() *cobra.Command {
 				os.Exit(1)
 			}
 
-			var catalog eclient.Catalog
+			var catalog eclient.CatalogYAML
 			if err = yaml.Unmarshal([]byte(data), &catalog); err != nil {
 				log.Fatalf("error: %+v", err)
 			}
@@ -72,10 +72,28 @@ func NewCmdCatalogApply() *cobra.Command {
 				os.Exit(1)
 			}
 
-			if err = client.UpdateCatalog(catalog.Category); err != nil {
+			// build a request
+			root := catalog.Category
+			catRequest := buildRequest(&root)
+
+			if err = client.UpdateCategoriesTree(catRequest); err != nil {
 				log.Fatal(err)
 			}
 		},
 	}
 	return cmd
+}
+
+func buildRequest(root *eclient.CategoryYAML) *eclient.CategoryRequest {
+	tree := eclient.CategoryRequest{
+		Segment: root.Segment,
+		Name:    root.Name,
+	}
+
+	for _, c := range root.Categories {
+		category := buildRequest(c)
+		tree.Categories = append(tree.Categories, category)
+	}
+
+	return &tree
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// ListCustomers call the API Service to retreieve a list of customers.
-func (c *EcomClient) ListCustomers() ([]*Customer, error) {
+// ListUsers calls the API Service to retreieve a list of users.
+func (c *EcomClient) ListUsers() ([]*User, error) {
 	uri := c.endpoint + "/customers"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
@@ -20,9 +20,9 @@ func (c *EcomClient) ListCustomers() ([]*Customer, error) {
 		return nil, errors.Wrapf(err, "%s", res.Status)
 	}
 
-	var customers []*Customer
-	if err := json.NewDecoder(res.Body).Decode(&customers); err != nil {
+	var users []*User
+	if err := json.NewDecoder(res.Body).Decode(&users); err != nil {
 		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
 	}
-	return customers, nil
+	return users, nil
 }

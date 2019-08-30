@@ -32,12 +32,12 @@ func NewCmdProfilesCreate() *cobra.Command {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
-			customToken, customer, err := client.SignInWithDevKey(devKey)
+			customToken, user, err := client.SignInWithDevKey(devKey)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
-			tar, err := client.ExchangeCustomTokenForIDAndRefreshToken(g.WebAPIKey, customToken)
+			tar, err := client.ExchangeCustomTokenForIDAndRefreshToken(g.APIKEY, customToken)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
@@ -51,12 +51,12 @@ func NewCmdProfilesCreate() *cobra.Command {
 			}
 
 			c := configmgr.Customer{
-				UUID:      customer.UUID,
-				UID:       customer.UID,
-				Role:      customer.Role,
-				Email:     customer.Email,
-				Firstname: customer.Firstname,
-				Lastname:  customer.Lastname,
+				ID:        user.ID,
+				UID:       user.UID,
+				Role:      user.Role,
+				Email:     user.Email,
+				Firstname: user.Firstname,
+				Lastname:  user.Lastname,
 			}
 			cfgs.Configurations[filename] = configmgr.EcomConfigEntry{
 				DevKey:   devKey,
