@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/admins"
-	"github.com/ecommerce-builder/ecom-cli-tool/cmd/assocs"
-	"github.com/ecommerce-builder/ecom-cli-tool/cmd/catalog"
-	"github.com/ecommerce-builder/ecom-cli-tool/cmd/customers"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/pcrelations"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/categoriestree"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/users"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/products"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/profiles"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/token"
@@ -23,9 +23,9 @@ func NewEcomCmd() *cobra.Command {
 		Long:  `See the user guide for more details.`,
 	}
 	cmd.AddCommand(admins.NewCmdAdmins())
-	cmd.AddCommand(assocs.NewCmdAssocs())
-	cmd.AddCommand(catalog.NewCmdCatalog())
-	cmd.AddCommand(customers.NewCmdCustomers())
+	cmd.AddCommand(pcrelations.NewCmdPCRelations())
+	cmd.AddCommand(categoriestree.NewCmdCategoriesTree())
+	cmd.AddCommand(users.NewCmdUsers())
 	cmd.AddCommand(products.NewCmdProducts())
 	cmd.AddCommand(profiles.NewCmdProfiles())
 	cmd.AddCommand(NewCmdCompletion())

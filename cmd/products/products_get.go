@@ -13,7 +13,7 @@ import (
 )
 
 type productResponseContainer struct {
-	Product *eclient.Product `yaml:"product"`
+	Product *eclient.ProductResponse `yaml:"product"`
 }
 
 // NewCmdProductsGet returns new initialized instance of the get sub command

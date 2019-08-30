@@ -22,7 +22,7 @@ type TokenAndRefreshToken struct {
 
 // Customer details
 type Customer struct {
-	UUID      string `mapstructure:"uuid" yaml:"uuid"`
+	ID        string `mapstructure:"id" yaml:"id"`
 	UID       string `mapstructure:"uid" yaml:"uid"`
 	Role      string `mapstructure:"role" yaml:"role"`
 	Email     string `mapstructure:"email" yaml:"email"`
@@ -34,7 +34,7 @@ type Customer struct {
 type EcomConfigEntry struct {
 	Endpoint string   `mapstructure:"endpoint" yaml:"endpoint"`
 	DevKey   string   `mapstructure:"developer-key" yaml:"developer-key"`
-	Customer Customer `mapstructure:"customer" yaml:"customer"`
+	Customer Customer `mapstructure:"user" yaml:"user"`
 }
 
 // EcomConfigurations contains the map of config entries.

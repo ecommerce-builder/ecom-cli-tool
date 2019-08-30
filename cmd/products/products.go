@@ -13,5 +13,6 @@ func NewCmdProducts() *cobra.Command {
 	cmd.AddCommand(NewCmdProductsApply())
 	cmd.AddCommand(NewCmdProductsDelete())
 	cmd.AddCommand(NewCmdProductsGet())
+	cmd.AddCommand(NewCmdProductsList())
 	return cmd
 }

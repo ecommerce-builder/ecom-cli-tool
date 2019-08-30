@@ -40,7 +40,7 @@ func NewCmdAdminsCreate() *cobra.Command {
 			}
 			fmt.Println("Adminstrator created")
 			fmt.Println("--------------------")
-			fmt.Printf("UUID: %s\n", customer.UUID)
+			fmt.Printf("ID: %s\n", customer.ID)
 			fmt.Printf("UID: %s\n", customer.UID)
 			fmt.Printf("Role: %s\n", customer.Role)
 			fmt.Printf("Firstname: %s\n", customer.Firstname)
