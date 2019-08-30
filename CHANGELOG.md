@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.14.0 (Fri 30 Aug 2019)
++ Brought up to date to match API restructuring.
+
 ## v0.13.2 (Mon 1 Jul 2019)
 + API uses integers for pricing not floats.
 + Use `pkg/errors` for better error handling.
