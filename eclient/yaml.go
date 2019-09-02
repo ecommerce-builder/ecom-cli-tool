@@ -52,3 +52,13 @@ type ProductYAML struct {
 	Created  time.Time                  `json:"created"`
 	Modified time.Time                  `json:"modified"`
 }
+
+// ProductCategoryRelationsYAML for the product to category relations.
+type ProductCategoryRelationsYAML struct {
+	Rels map[string]*ProductSetYAML `yaml:"product_category_relations"`
+}
+
+// An ProductSetYAML holds a single product to catalog association.
+type ProductSetYAML struct {
+	Products []string `yaml:"products"`
+}

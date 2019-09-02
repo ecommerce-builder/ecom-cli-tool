@@ -39,7 +39,7 @@ func NewCmdCategoriesTreeGet() *cobra.Command {
 	return cmd
 }
 
-func treeView(node *eclient.CategoryResponse, depth int, lastSibling bool) {
+func treeView(node *eclient.CategoryTreeResponse, depth int, lastSibling bool) {
 	// fmt.Printf("%+v\n", node)
 	// fmt.Printf("node.Name=%s last sibling=%t\n", node.Name, lastSibling)
 	var arm string

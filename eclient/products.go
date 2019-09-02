@@ -147,7 +147,7 @@ func (c *EcomClient) GetProduct(sku string) (*ProductResponse, error) {
 }
 
 // GetProducts returns a list of products
-func (c *EcomClient) GetProducts() (*ProductContainerResponse, error) {
+func (c *EcomClient) GetProducts() ([]*ProductResponse, error) {
 	uri := c.endpoint + "/products"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
@@ -155,11 +155,11 @@ func (c *EcomClient) GetProducts() (*ProductContainerResponse, error) {
 	}
 	defer res.Body.Close()
 
-	var list ProductContainerResponse
-	if err := json.NewDecoder(res.Body).Decode(&list); err != nil {
+	var container ProductContainerResponse
+	if err := json.NewDecoder(res.Body).Decode(&container); err != nil {
 		return nil, errors.Wrapf(err, "get product response decode failed")
 	}
-	return &list, nil
+	return container.Data, nil
 }
 
 func (c *EcomClient) request(method, uri string, body io.Reader) (*http.Response, error) {

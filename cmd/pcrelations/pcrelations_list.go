@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sort"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
@@ -29,25 +28,24 @@ func NewCmdPCRelationsList() *cobra.Command {
 				log.Fatal(err)
 			}
 
-			pcrelations, err := client.GetCatalogAssocs()
+			pcrelations, err := client.GetProductCategoryRelations()
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			// To store the paths in slice in sorted order
-			var paths []string
-			for p := range pcrelations {
-				paths = append(paths, p)
+			categoryPathToProductList := make(map[string][]string)
+
+			for _, rel := range pcrelations {
+				categoryPathToProductList[rel.CategoryPath] = append(categoryPathToProductList[rel.CategoryPath], rel.ProductSKU)
 			}
-			sort.Strings(paths)
 
 			// Display the associations in order
-			fmt.Println("associations:")
-			for _, path := range paths {
-				fmt.Printf("  %s:\n", path)
+			fmt.Println("product_category_relations:")
+			for categoryPath := range categoryPathToProductList {
+				fmt.Printf("  %s:\n", categoryPath)
 				fmt.Println("    products:")
-				for _, p := range pcrelations[path].Products {
-					fmt.Printf("      - %s\n", p.SKU)
+				for _, sku := range categoryPathToProductList[categoryPath] {
+					fmt.Printf("      - %s\n", sku)
 				}
 			}
 			os.Exit(0)

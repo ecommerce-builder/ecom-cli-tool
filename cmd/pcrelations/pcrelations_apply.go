@@ -21,7 +21,7 @@ func NewCmdPCRelationsApply() *cobra.Command {
 		os.Exit(1)
 	}
 	var cmd = &cobra.Command{
-		Use:   "apply <assocs.yaml>",
+		Use:   "apply <product-category-relations.yaml>",
 		Short: "Replace all product to category relations",
 		Long:  ``,
 
@@ -40,13 +40,65 @@ func NewCmdPCRelationsApply() *cobra.Command {
 				os.Exit(1)
 			}
 
-			var assocs eclient.Associations
-			err = yaml.Unmarshal([]byte(data), &assocs)
+			var relationships eclient.ProductCategoryRelationsYAML
+			err = yaml.Unmarshal([]byte(data), &relationships)
 			if err != nil {
 				log.Fatalf("error: %v", err)
 			}
 
-			err = client.UpdateProductCategoryRelations(assocs.Assocs)
+			// retrieve a list of all products and build a map
+			// of sku -> product ids
+			products, err := client.GetProducts()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "failed to get products: %+v", err)
+				os.Exit(1)
+			}
+			productSKUToID := make(map[string]string)
+			for _, p := range products {
+				productSKUToID[p.SKU] = p.ID
+			}
+
+			// fmt.Printf("%#v\n", productSKUToID)
+
+			// retrieve a list of all categories and build a map
+			// of path -> category ids
+			categories, err := client.GetCategories()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "failed to get categories: %+v", err)
+				os.Exit(1)
+			}
+			categoryPathToID := make(map[string]string)
+			for _, c := range categories {
+				categoryPathToID[c.Path] = c.ID
+			}
+
+			for path, productset := range relationships.Rels {
+				// fmt.Printf("%#v\n", path)
+				// fmt.Printf("%#v\n", productset)
+
+				if _, ok := categoryPathToID[path]; !ok {
+					fmt.Fprintf(os.Stderr, "Category path %s not found.\n", path)
+				}
+
+				for _, sku := range productset.Products {
+					if _, ok := productSKUToID[sku]; !ok {
+						fmt.Fprintf(os.Stderr, "Product SKU=%s in Category path=%s section not found.\n", sku, path)
+					}
+				}
+			}
+
+			rels := make([]*eclient.CreateProductsCategories, 0)
+			for path, productset := range relationships.Rels {
+				for _, sku := range productset.Products {
+					c := eclient.CreateProductsCategories{
+						CategoryID: categoryPathToID[path],
+						ProductID:  productSKUToID[sku],
+					}
+					rels = append(rels, &c)
+				}
+			}
+
+			err = client.UpdateProductCategoryRelations(rels)
 			if err != nil {
 				log.Fatal(err)
 			}

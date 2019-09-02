@@ -18,12 +18,12 @@ type CategoryRequest struct {
 
 // CategoriesContainerResponse a container for list of catgory objects
 type CategoriesContainerResponse struct {
-	Object string              `json:"object"`
-	Data   []*CategoryResponse `json:"data"`
+	Object string                  `json:"object"`
+	Data   []*CategoryTreeResponse `json:"data"`
 }
 
-// CategoryResponse is a single node in the catalog.
-type CategoryResponse struct {
+// CategoryTreeResponse is a single node in the catalog.
+type CategoryTreeResponse struct {
 	Object     string                       `json:"object"`
 	ID         string                       `json:"id"`
 	Segment    string                       `json:"segment"`
@@ -58,7 +58,7 @@ func (c *EcomClient) UpdateCategoriesTree(cats *CategoryRequest) error {
 }
 
 // GetCategoriesTree returns the categories tree
-func (c *EcomClient) GetCategoriesTree() (*CategoryResponse, error) {
+func (c *EcomClient) GetCategoriesTree() (*CategoryTreeResponse, error) {
 	uri := c.endpoint + "/categories-tree"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
@@ -81,7 +81,7 @@ func (c *EcomClient) GetCategoriesTree() (*CategoryResponse, error) {
 		return nil, errors.Errorf(fmt.Sprintf("Status: %d, Code: %s, Message: %s\n", e.Status, e.Code, e.Message))
 	}
 
-	var tree CategoryResponse
+	var tree CategoryTreeResponse
 	if err := json.NewDecoder(res.Body).Decode(&tree); err != nil {
 		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
 	}

@@ -35,13 +35,11 @@ func NewCmdProductsApply() *cobra.Command {
 			}
 
 			// load all products
-			pcontainer, err := client.GetProducts()
+			products, err := client.GetProducts()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
 			}
-
-			products := pcontainer.Data
 
 			isDir, err := isDirectory(args[0])
 			if err != nil {

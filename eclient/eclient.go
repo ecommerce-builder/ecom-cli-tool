@@ -322,8 +322,6 @@ func (c *EcomClient) SignInWithDevKey(key string) (token string, user *User, err
 	buf := new(bytes.Buffer)
 	json.NewEncoder(buf).Encode(payload)
 
-	fmt.Println(buf)
-
 	req, err := http.NewRequest("POST", uri, buf)
 	if err != nil {
 		return "", nil, fmt.Errorf("error creating new POST request: %v", err)

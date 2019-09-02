@@ -33,7 +33,7 @@ func NewCmdProductsList() *cobra.Command {
 				os.Exit(1)
 			}
 
-			for _, p := range products.Data {
+			for _, p := range products {
 				fmt.Printf("%s, %s, %s\n", p.SKU, p.Path, p.Name)
 			}
 		},
