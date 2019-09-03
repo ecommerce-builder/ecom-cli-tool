@@ -1,4 +1,7 @@
 # CHANGELOG
+## v0.15.0 (Tue 3 Sep 2019)
++ Price lists.
++ Product category relations.
 
 ## v0.14.0 (Fri 30 Aug 2019)
 + Brought up to date to match API restructuring.
