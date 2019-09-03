@@ -15,6 +15,7 @@ type CategoryYAML struct {
 	Categories []*CategoryYAML `yaml:"categories,omitempty"`
 }
 
+// ProductContainerYAML container for a YAML product.
 type ProductContainerYAML struct {
 	Product ProductApplyYAML `yaml:"product"`
 }
@@ -25,6 +26,7 @@ type ProductImageApplyYAML struct {
 	Title string `yaml:"title"`
 }
 
+// PriceYAML YAML price
 type PriceYAML struct {
 	Break     int `yaml:"break"`
 	UnitPrice int `yaml:"unit_price"`

@@ -34,6 +34,13 @@ func NewCmdProductsApply() *cobra.Command {
 				log.Fatal(err)
 			}
 
+			// load all price lists
+			priceLists, err := client.GetPriceLists()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
+			}
+
 			// load all products
 			products, err := client.GetProducts()
 			if err != nil {
@@ -47,7 +54,7 @@ func NewCmdProductsApply() *cobra.Command {
 				os.Exit(1)
 			}
 			if !isDir {
-				if err := applyProduct(client, products, args[0]); err != nil {
+				if err := applyProduct(client, products, priceLists, args[0]); err != nil {
 					if err == errMissingEAN {
 						fmt.Fprintf(os.Stderr, "Skipping %s as EAN is missing\n", args[0])
 						os.Exit(1)
@@ -65,7 +72,7 @@ func NewCmdProductsApply() *cobra.Command {
 			}
 
 			for _, file := range matches {
-				if err := applyProduct(client, products, file); err != nil {
+				if err := applyProduct(client, products, priceLists, file); err != nil {
 					if err == errMissingEAN {
 						fmt.Fprintf(os.Stderr, "Skipping %s as EAN is missing\n", file)
 						continue
@@ -91,7 +98,13 @@ func findProductBySKU(products []*eclient.ProductResponse, sku string) *eclient.
 	return nil
 }
 
-func applyProduct(ec *eclient.EcomClient, products []*eclient.ProductResponse, filename string) error {
+func applyProduct(ec *eclient.EcomClient, products []*eclient.ProductResponse, priceLists []*eclient.PriceListResponse, filename string) error {
+	// create a map of priceListCode -> priceListID
+	priceListCodeToID := make(map[string]string)
+	for _, p := range priceLists {
+		priceListCodeToID[p.PriceListCode] = p.ID
+	}
+
 	file, err := os.Open(filename)
 	if err != nil {
 		return errors.Wrapf(err, "os.Open(%q) failed", filename)
@@ -110,18 +123,49 @@ func applyProduct(ec *eclient.EcomClient, products []*eclient.ProductResponse, f
 		SKU:  container.Product.SKU,
 		Name: container.Product.Name,
 	}
+
 	if product != nil {
 		_, err = ec.ReplaceProduct(product.ID, &request)
 		if err != nil {
 			return err
 		}
-		return nil
+
+		if err := ec.DeleteProductImages(product.ID); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to delete images for product sku=%s\n", product.SKU)
+			os.Exit(1)
+		}
+	} else {
+		product, err = ec.CreateProduct(&request)
+		if err != nil {
+			return err
+		}
 	}
 
-	_, err = ec.CreateProduct(&request)
-	if err != nil {
-		return err
+	for _, i := range container.Product.Images {
+		ir := eclient.ImageRequest{
+			ProductID: product.ID,
+			Path:      i.Path,
+		}
+		_, err := ec.CreateImage(ir)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "create image failed: %v", err)
+			os.Exit(1)
+		}
 	}
+
+	// set prices
+	newPrices := make([]*eclient.PriceRequest, 0)
+	for priceListCode, prices := range container.Product.Prices {
+		for _, price := range prices {
+			pr := eclient.PriceRequest{
+				Break:     price.Break,
+				UnitPrice: price.UnitPrice,
+			}
+			newPrices = append(newPrices, &pr)
+		}
+		ec.SetPrices(product.ID, priceListCodeToID[priceListCode], newPrices)
+	}
+
 	return nil
 }
 

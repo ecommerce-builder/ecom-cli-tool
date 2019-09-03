@@ -231,7 +231,7 @@ func (c *EcomClient) ExchangeRefreshTokenForIDToken(firebaseAPIKey, refreshToken
 		body, _ := ioutil.ReadAll(res.Body)
 		err = json.Unmarshal(body, &e)
 		if err != nil {
-			return nil, errors.Wrapf(err, "%d %s\n", e.Code, e.Message)
+			return nil, errors.Wrapf(err, "%s %s\n", e.Code, e.Message)
 		}
 
 	}

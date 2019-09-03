@@ -6,6 +6,7 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/categoriestree"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/users"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/products"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/pricelists"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/profiles"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/token"
 
@@ -27,6 +28,7 @@ func NewEcomCmd() *cobra.Command {
 	cmd.AddCommand(categoriestree.NewCmdCategoriesTree())
 	cmd.AddCommand(users.NewCmdUsers())
 	cmd.AddCommand(products.NewCmdProducts())
+	cmd.AddCommand(pricelists.NewCmdPriceLists())
 	cmd.AddCommand(profiles.NewCmdProfiles())
 	cmd.AddCommand(NewCmdCompletion())
 	cmd.AddCommand(NewCmdSysInfo())

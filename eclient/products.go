@@ -70,6 +70,7 @@ type ProductPricing struct {
 	Modified  time.Time `json:"modified" yaml:"modified"`
 }
 
+// CreateProduct calls the API to create a new product.
 func (c *EcomClient) CreateProduct(product *ProductRequest) (*ProductResponse, error) {
 	request, err := json.Marshal(&product)
 	if err != nil {
