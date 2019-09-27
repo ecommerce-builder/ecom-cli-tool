@@ -31,14 +31,17 @@ type PricesContainerResponse struct {
 
 // PriceResponse a single price.
 type PriceResponse struct {
-	Object      string    `json:"object"`
-	ID          string    `json:"id"`
-	ProductID   string    `json:"product_id"`
-	PriceListID string    `json:"price_list_id"`
-	Break       int       `json:"break"`
-	UnitPrice   int       `json:"unit_price"`
-	Created     time.Time `json:"created"`
-	Modified    time.Time `json:"modified"`
+	Object        string    `json:"object"`
+	ID            string    `json:"id"`
+	ProductID     string    `json:"product_id"`
+	ProductPath   string    `json:"product_path"`
+	ProductSKU    string    `json:"product_sku"`
+	PriceListID   string    `json:"price_list_id"`
+	PriceListCode string    `json:"price_list_code"`
+	Break         int       `json:"break"`
+	UnitPrice     int       `json:"unit_price"`
+	Created       time.Time `json:"created"`
+	Modified      time.Time `json:"modified"`
 }
 
 // SetPrices calls the API Service to update the categories tree.

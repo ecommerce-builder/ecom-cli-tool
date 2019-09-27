@@ -1,4 +1,7 @@
 # CHANGELOG
+## v0.15.1 (Fri 27 Sep 2019)
++ Prices and Images HTTP responses changed.
+
 ## v0.15.0 (Tue 3 Sep 2019)
 + Price lists.
 + Product category relations.

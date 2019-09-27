@@ -19,16 +19,18 @@ type ImageRequest struct {
 
 // ImageResponse JSON image response body.
 type ImageResponse struct {
-	Object    string    `json:"object"`
-	ID        string    `json:"id"`
-	ProductID string    `json:"product_id"`
-	Path      string    `json:"path"`
-	GSURL     string    `json:"gsurl"`
-	Width     int       `json:"width"`
-	Height    int       `json:"height"`
-	Size      int       `json:"size"`
-	Created   time.Time `json:"created"`
-	Modified  time.Time `json:"modified"`
+	Object      string    `json:"object"`
+	ID          string    `json:"id"`
+	ProductID   string    `json:"product_id"`
+	ProductPath string    `json:"product_path"`
+	ProducutSKU string    `json:"product_sku"`
+	Path        string    `json:"path"`
+	GSURL       string    `json:"gsurl"`
+	Width       int       `json:"width"`
+	Height      int       `json:"height"`
+	Size        int       `json:"size"`
+	Created     time.Time `json:"created"`
+	Modified    time.Time `json:"modified"`
 }
 
 // CreateImage calls the API service to create an image for a given product.
