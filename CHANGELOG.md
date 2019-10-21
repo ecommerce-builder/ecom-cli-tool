@@ -1,4 +1,9 @@
 # CHANGELOG
+## v0.17.0 (Mon 21 Oct 2019)
++ Create and list developer keys.
++ Hide developer key for profiles create sub command.
++ Create and list users with roles.
+
 ## v0.16.0 (Mon 21 Oct 2019)
 + Promo rule and shipping tariff management.
 + Go 1.13 error handling with %w.
