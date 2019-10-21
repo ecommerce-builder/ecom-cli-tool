@@ -13,17 +13,6 @@ import (
 	"gopkg.in/AlecAivazis/survey.v1"
 )
 
-// type promoRuleRequest struct {
-// 	promoRuleCode    string
-// 	name             string
-// 	typ              string
-// 	target           string
-// 	productID        string
-// 	categoryID       string
-// 	shippingTariffID string
-// 	totalTheshold    int
-// }
-
 // NewCmdPromoRulesCreate returns new initialized instance of create sub command
 func NewCmdPromoRulesCreate() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
