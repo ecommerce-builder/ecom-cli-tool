@@ -101,7 +101,7 @@ func (c *EcomClient) PurgeCatalog() error {
 			Message string `json:"message"`
 		}
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return fmt.Errorf("client decode error", err)
+			return fmt.Errorf("client decode error: %w", err)
 		}
 		return fmt.Errorf("%s: %w", e.Message, err)
 	}
