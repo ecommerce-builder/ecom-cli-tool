@@ -34,7 +34,7 @@ func NewCmdDevKeysList() *cobra.Command {
 		os.Exit(1)
 	}
 	var cmd = &cobra.Command{
-		Use:   "list <user_id>",
+		Use:   "list <email>",
 		Short: "List developer keys",
 		Long:  ``,
 		Args:  cobra.ExactArgs(1),
@@ -71,7 +71,7 @@ func NewCmdDevKeysList() *cobra.Command {
 				os.Exit(1)
 			}
 
-			format := "%s\t%s\t%s\t%v\n"
+			format := "%s\t%s\t%v\n"
 			tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
 			fmt.Fprintf(tw, format, "Developer Key ID", "Key", "Created")
 			fmt.Fprintf(tw, format, "----------------", "---", "-------")

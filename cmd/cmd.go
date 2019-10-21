@@ -12,6 +12,7 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/tariffs"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/token"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/users"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/webhooks"
 
 	"github.com/spf13/cobra"
 )
@@ -36,6 +37,7 @@ func NewEcomCmd() *cobra.Command {
 	cmd.AddCommand(profiles.NewCmdProfiles())
 	cmd.AddCommand(promorules.NewCmdPromoRules())
 	cmd.AddCommand(tariffs.NewCmdShippingTariffsRules())
+	cmd.AddCommand(webhooks.NewCmdWebhooks())
 	cmd.AddCommand(NewCmdCompletion())
 	cmd.AddCommand(NewCmdSysInfo())
 	cmd.AddCommand(token.NewCmdToken())
