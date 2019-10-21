@@ -10,6 +10,7 @@ func NewCmdUsers() *cobra.Command {
 		Use:   "users",
 		Short: "User management",
 	}
+	cmd.AddCommand(NewCmdUsersCreate())
 	cmd.AddCommand(NewCmdUsersList())
 	return cmd
 }

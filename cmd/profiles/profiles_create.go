@@ -77,7 +77,7 @@ func promptAddProfile() (endpoint, devKey string, err error) {
 		Message: "Endpoint:",
 	}
 	survey.AskOne(e, &endpoint, nil)
-	d := &survey.Input{
+	d := &survey.Password{
 		Message: "Developer Key:",
 	}
 	survey.AskOne(d, &devKey, nil)
