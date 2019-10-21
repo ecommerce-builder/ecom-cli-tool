@@ -1,6 +1,7 @@
 package pcrelations
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -48,7 +49,7 @@ func NewCmdPCRelationsApply() *cobra.Command {
 
 			// retrieve a list of all products and build a map
 			// of sku -> product ids
-			products, err := client.GetProducts()
+			products, err := client.GetProducts(context.TODO())
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "failed to get products: %+v", err)
 				os.Exit(1)

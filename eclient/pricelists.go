@@ -2,11 +2,10 @@ package eclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"net/http"
-
-	"github.com/pkg/errors"
 )
 
 // PriceListContainerResponse price list container JSON body.
@@ -34,13 +33,13 @@ func (c *EcomClient) GetPriceLists() ([]*PriceListResponse, error) {
 	uri := c.endpoint + "/price-lists"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	var container PriceListContainerResponse
 	if err := json.NewDecoder(res.Body).Decode(&container); err != nil {
-		return nil, errors.Wrapf(err, "get price list response decode failed")
+		return nil, fmt.Errorf("decode failed: %w", err)
 	}
 	return container.Data, nil
 }

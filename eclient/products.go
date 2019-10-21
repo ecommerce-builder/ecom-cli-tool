@@ -1,14 +1,14 @@
 package eclient
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // ErrProductNotFound indicates the product with given SKU could not be found.
@@ -74,28 +74,28 @@ type ProductPricing struct {
 func (c *EcomClient) CreateProduct(product *ProductRequest) (*ProductResponse, error) {
 	request, err := json.Marshal(&product)
 	if err != nil {
-		return nil, errors.Wrapf(err, "client: json marshal failed")
+		return nil, fmt.Errorf("client: json marshal failed: %w", err)
 	}
 
 	uri := c.endpoint + "/products"
 	body := strings.NewReader(string(request))
 	res, err := c.request(http.MethodPost, uri, body)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return nil, errors.Wrapf(err, "client decode error")
+			return nil, fmt.Errorf("client decode error: %w", err)
 		}
-		return nil, errors.Errorf(fmt.Sprintf("Status: %d, Code: %s, Message: %s\n", e.Status, e.Code, e.Message))
+		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
 	}
 
 	var pr ProductResponse
 	if err = json.NewDecoder(res.Body).Decode(&pr); err != nil {
-		return nil, errors.Wrapf(err, "replce product response decode failed")
+		return nil, fmt.Errorf("decode failed: %w", err)
 	}
 	return &pr, nil
 }
@@ -105,23 +105,23 @@ func (c *EcomClient) CreateProduct(product *ProductRequest) (*ProductResponse, e
 func (c *EcomClient) ReplaceProduct(productID string, product *ProductRequest) (*ProductResponse, error) {
 	request, err := json.Marshal(&product)
 	if err != nil {
-		return nil, errors.Wrapf(err, "update product productID=%s failed", productID)
+		return nil, fmt.Errorf("update product productID=%s failed: %w", productID, err)
 	}
 
 	uri := c.endpoint + "/products/" + productID
 	body := strings.NewReader(string(request))
 	res, err := c.request(http.MethodPut, uri, body)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
-		return nil, errors.Errorf("HTTP PUT to %q return %s", uri, res.Status)
+		return nil, fmt.Errorf("HTTP PUT to %q return %s: %w", uri, res.Status, err)
 	}
 	var pr ProductResponse
 	if err = json.NewDecoder(res.Body).Decode(&pr); err != nil {
-		return nil, errors.Wrapf(err, "replce product response decode failed")
+		return nil, fmt.Errorf("decode failed: %w", err)
 	}
 	return &pr, nil
 }
@@ -131,34 +131,34 @@ func (c *EcomClient) GetProduct(sku string) (*ProductResponse, error) {
 	uri := c.endpoint + "/products/" + sku
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode == 404 {
 		return nil, ErrProductNotFound
 	} else if res.StatusCode >= 400 {
-		return nil, errors.Errorf("HTTP GET to %q returned %s", uri, res.Status)
+		return nil, fmt.Errorf("HTTP GET to %q returned %s: %w", uri, res.Status, err)
 	}
 	var p ProductResponse
 	if err := json.NewDecoder(res.Body).Decode(&p); err != nil {
-		return nil, errors.Wrapf(err, "get product response decode failed")
+		return nil, fmt.Errorf("decode failed: %w", err)
 	}
 	return &p, nil
 }
 
 // GetProducts returns a list of products
-func (c *EcomClient) GetProducts() ([]*ProductResponse, error) {
+func (c *EcomClient) GetProducts(ctx context.Context) ([]*ProductResponse, error) {
 	uri := c.endpoint + "/products"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	var container ProductContainerResponse
 	if err := json.NewDecoder(res.Body).Decode(&container); err != nil {
-		return nil, errors.Wrapf(err, "get product response decode failed")
+		return nil, fmt.Errorf("get product response decode failed: %w", err)
 	}
 	return container.Data, nil
 }
@@ -173,7 +173,7 @@ func (c *EcomClient) request(method, uri string, body io.Reader) (*http.Response
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, errors.Wrapf(err, "do HTTP %s request failed", req.Method)
+		return nil, fmt.Errorf("do HTTP %s request failed: %w", req.Method, err)
 	}
 	return res, nil
 }
@@ -183,7 +183,7 @@ func (c *EcomClient) ProductExists(sku string) (bool, error) {
 	uri := c.endpoint + "/products/" + sku
 	res, err := c.request(http.MethodHead, uri, nil)
 	if err != nil {
-		return false, errors.Wrap(err, "request failed")
+		return false, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode == 204 {
@@ -191,14 +191,14 @@ func (c *EcomClient) ProductExists(sku string) (bool, error) {
 	} else if res.StatusCode == 404 {
 		return false, nil
 	}
-	return true, errors.Wrapf(err, "unknown HTTP status code returned (%d)", res.StatusCode)
+	return true, fmt.Errorf("unknown HTTP status code %d: %w", res.StatusCode, err)
 }
 
 // DeleteProduct calls the API Service to delete a product resource.
 func (c *EcomClient) DeleteProduct(sku string) error {
 	exists, err := c.ProductExists(sku)
 	if err != nil {
-		return errors.Wrap(err, "product exists failed")
+		return fmt.Errorf("product exists failed: %w", err)
 	}
 	if !exists {
 		return nil
@@ -206,7 +206,7 @@ func (c *EcomClient) DeleteProduct(sku string) error {
 	uri := c.endpoint + "/products/" + sku
 	res, err := c.request(http.MethodHead, uri, nil)
 	if err != nil {
-		return errors.Wrap(err, "request failed")
+		return fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 	return nil

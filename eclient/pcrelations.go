@@ -2,12 +2,11 @@ package eclient
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // ProductCategoryContainerResponse container.
@@ -60,14 +59,14 @@ func (c *EcomClient) GetProductCategoryRelations() ([]*ProductCategoryResponse, 
 	uri := c.endpoint + "/products-categories"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	var container ProductCategoryContainerResponse
 	err = json.NewDecoder(res.Body).Decode(&container)
 	if err != nil {
-		return nil, errors.Wrapf(err, "get product response decode failed")
+		return nil, fmt.Errorf("get product response decode failed: %w", err)
 	}
 	return container.Data, nil
 }
@@ -82,27 +81,22 @@ func (c *EcomClient) UpdateProductCategoryRelations(rels []*CreateProductsCatego
 
 	payload, err := json.Marshal(&container)
 	if err != nil {
-		return errors.Wrapf(err, "client: json marshal failed")
+		return fmt.Errorf("client: json marshal failed: %w", err)
 	}
 	uri := c.endpoint + "/products-categories"
 	body := strings.NewReader(string(payload))
 	res, err := c.request(http.MethodPut, uri, body)
 	if err != nil {
-		return errors.Wrap(err, "request failed")
+		return fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
-	//bs, err := ioutil.ReadAll(res.Body)
-	//if err != nil {
-	//	return nil, errors.Wrap(err, "readall failed:")
-	//}
-	//fmt.Println(string(bs))
 	if res.StatusCode >= 400 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return errors.Wrapf(err, "client decode error")
+			return fmt.Errorf("client decode error: %w", err)
 		}
-		return errors.Errorf(fmt.Sprintf("Status: %d, Code: %s, Message: %s\n", e.Status, e.Code, e.Message))
+		return fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
 	}
 	return nil
 }
@@ -113,12 +107,12 @@ func (c *EcomClient) DeleteProductCategoryRelations() error {
 	uri := c.endpoint + "/products-categories"
 	res, err := c.request(http.MethodDelete, uri, nil)
 	if err != nil {
-		return errors.Wrap(err, "request failed")
+		return fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
-		return errors.Errorf("unauthorized")
+		return errors.New("unauthorized")
 	}
 	return nil
 }

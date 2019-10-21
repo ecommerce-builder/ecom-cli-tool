@@ -2,10 +2,9 @@ package eclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 type createAdminRequest struct {
@@ -25,22 +24,22 @@ func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*User, erro
 	}
 	payload, err := json.Marshal(&p)
 	if err != nil {
-		return nil, errors.Wrap(err, "create admin failed")
+		return nil, fmt.Errorf("create admin failed: %w", err)
 	}
 	uri := c.endpoint + "/admins"
 	res, err := c.request(http.MethodPost, uri, strings.NewReader(string(payload)))
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
-		return nil, errors.Errorf("HTTP POST to %q return %s", uri, res.Status)
+		return nil, fmt.Errorf("HTTP POST to %q return %s: %w", uri, res.Status, err)
 	}
 	user := User{}
 	err = json.NewDecoder(res.Body).Decode(&user)
 	if err != nil {
-		return nil, errors.Wrapf(err, "create product response decode failed")
+		return nil, fmt.Errorf("create product response decode failed: %w", err)
 	}
 	return &user, nil
 }
@@ -50,14 +49,14 @@ func (c *EcomClient) ListAdmins() ([]*User, error) {
 	uri := c.endpoint + "/admins"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	users := make([]*User, 0, 8)
 	err = json.NewDecoder(res.Body).Decode(&users)
 	if err != nil {
-		return nil, errors.Wrapf(err, "list users response decode failed")
+		return nil, fmt.Errorf("list users response decode failed: %w", err)
 	}
 	return users, nil
 }
@@ -68,7 +67,7 @@ func (c *EcomClient) DeleteAdmin(uuid string) error {
 	uri := c.endpoint + "/admins/" + uuid
 	res, err := c.request(http.MethodDelete, uri, nil)
 	if err != nil {
-		return errors.Wrap(err, "request failed")
+		return fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 	return nil

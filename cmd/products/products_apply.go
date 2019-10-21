@@ -1,6 +1,8 @@
 package products
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -12,7 +14,6 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
 
-	"github.com/pkg/errors"
 )
 
 // NewCmdProductsApply returns new initialized instance of the apply sub command
@@ -42,7 +43,7 @@ func NewCmdProductsApply() *cobra.Command {
 			}
 
 			// load all products
-			products, err := client.GetProducts()
+			products, err := client.GetProducts(context.TODO())
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
@@ -107,7 +108,7 @@ func applyProduct(ec *eclient.EcomClient, products []*eclient.ProductResponse, p
 
 	file, err := os.Open(filename)
 	if err != nil {
-		return errors.Wrapf(err, "os.Open(%q) failed", filename)
+		return fmt.Errorf("os.Open(%q) failed: %w", filename, err)
 	}
 	defer file.Close()
 
@@ -172,7 +173,7 @@ func applyProduct(ec *eclient.EcomClient, products []*eclient.ProductResponse, p
 func isDirectory(path string) (bool, error) {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
-		return false, errors.Wrapf(err, "os.Stat(%q) failed", path)
+		return false, fmt.Errorf("os.Stat(%q) failed: %w", path, err)
 	}
 	return fileInfo.IsDir(), err
 }

@@ -1,12 +1,12 @@
 package profiles
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
 )
@@ -44,7 +44,7 @@ func NewCmdProfilesRemove() *cobra.Command {
 				filename := fmt.Sprintf("%s-%s", hostname, p.DevKey[:6])
 				ok, err := configmgr.DeleteProject(filename)
 				if err != nil {
-					fmt.Fprintf(os.Stderr, "Warn: remove profile failed: %+v\n", errors.Cause(err))
+					fmt.Fprintf(os.Stderr, "Warn: remove profile failed: %+v\n", errors.Unwrap(err))
 				}
 				if !ok {
 					fmt.Fprintf(os.Stderr, "Warn: remove profile failed: %+v\n", err)

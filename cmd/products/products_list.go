@@ -1,6 +1,7 @@
 package products
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -27,7 +28,7 @@ func NewCmdProductsList() *cobra.Command {
 				log.Fatal(err)
 			}
 
-			products, err := client.GetProducts()
+			products, err := client.GetProducts(context.TODO())
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)

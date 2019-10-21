@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 // CategoryRequest body for updating the categories tree.
@@ -36,23 +34,23 @@ type CategoryTreeResponse struct {
 func (c *EcomClient) UpdateCategoriesTree(cats *CategoryRequest) error {
 	request, err := json.Marshal(&cats)
 	if err != nil {
-		return errors.Wrapf(err, "client: json marshal failed")
+		return fmt.Errorf("client: json marshal failed: %w", err)
 	}
 
 	uri := c.endpoint + "/categories-tree"
 	body := strings.NewReader(string(request))
 	res, err := c.request(http.MethodPut, uri, body)
 	if err != nil {
-		return errors.Wrap(err, "request failed")
+		return fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return errors.Wrapf(err, "client decode error")
+			return fmt.Errorf("client decode error: %w", err)
 		}
-		return errors.Errorf(fmt.Sprintf("Status: %d, Code: %s, Message: %s\n", e.Status, e.Code, e.Message))
+		return fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
 	}
 	return nil
 }
@@ -62,28 +60,28 @@ func (c *EcomClient) GetCategoriesTree() (*CategoryTreeResponse, error) {
 	uri := c.endpoint + "/categories-tree"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "http new request failed")
+		return nil, fmt.Errorf("http new request failed: %w", err)
 	}
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.jwt)
 	res, err := c.client.Do(req)
 	if err != nil {
-		return nil, errors.Wrapf(err, "http do to %v failed", uri)
+		return nil, fmt.Errorf("http do to %v failed: %w", uri, err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return nil, errors.Wrapf(err, "client decode error")
+			return nil, fmt.Errorf("client decode error: %w", err)
 		}
-		return nil, errors.Errorf(fmt.Sprintf("Status: %d, Code: %s, Message: %s\n", e.Status, e.Code, e.Message))
+		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
 	}
 
 	var tree CategoryTreeResponse
 	if err := json.NewDecoder(res.Body).Decode(&tree); err != nil {
-		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
+		return nil, fmt.Errorf("json decode url %s failed: %w", uri, err)
 	}
 	return &tree, nil
 }
@@ -93,7 +91,7 @@ func (c *EcomClient) PurgeCatalog() error {
 	uri := c.endpoint + "/categories"
 	res, err := c.request(http.MethodDelete, uri, nil)
 	if err != nil {
-		return errors.Wrap(err, "request failed")
+		return fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 	if res.StatusCode >= 400 {
@@ -103,9 +101,9 @@ func (c *EcomClient) PurgeCatalog() error {
 			Message string `json:"message"`
 		}
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return errors.Wrapf(err, "client decode error")
+			return fmt.Errorf("client decode error", err)
 		}
-		return errors.Errorf(e.Message)
+		return fmt.Errorf("%s: %w", e.Message, err)
 	}
 	return nil
 }

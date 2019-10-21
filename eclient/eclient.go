@@ -8,13 +8,11 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
-	"github.com/pkg/errors"
 )
 
 // Version string
@@ -157,12 +155,11 @@ type badRequestResponse struct {
 func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 	file, err := configmgr.TokenFilename(cfg)
 	if err != nil {
-		return errors.Wrapf(err, "token file %q not found", file)
+		return fmt.Errorf("token file %q not found: %w", file, err)
 	}
 	tar, err := configmgr.ReadTokenAndRefreshToken(file)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "token and refresh token cannot be read from %q: %v", file, err)
-		os.Exit(1)
+		return fmt.Errorf("token and refresh token cannot be read from %q: %w", file, err)
 	}
 	var p jwt.Parser
 	t, _, err := p.ParseUnverified(tar.IDToken, &jwt.StandardClaims{})
@@ -177,13 +174,13 @@ func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 		}
 		tar, err = c.ExchangeRefreshTokenForIDToken(f.APIKEY, tar.RefreshToken)
 		if err != nil {
-			return errors.Wrap(err, "exchange refresh token for id token failed")
+			return fmt.Errorf("exchange refresh token for id token failed: %w", err)
 		}
 		hostname, err := configmgr.URLToHostName(cfg.Endpoint)
 		filename := fmt.Sprintf("%s-%s", hostname, cfg.DevKey[:6])
 		err = configmgr.WriteTokenAndRefreshToken(filename, tar)
 		if err != nil {
-			return errors.Wrap(err, "write token and refresh token failed")
+			return fmt.Errorf("write token and refresh token failed: %w", err)
 		}
 	}
 	c.jwt = tar.IDToken
@@ -222,7 +219,7 @@ func (c *EcomClient) ExchangeRefreshTokenForIDToken(firebaseAPIKey, refreshToken
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "create new POST request failed")
+		return nil, fmt.Errorf("create new POST request failed: %w", err)
 	}
 	defer res.Body.Close()
 
@@ -231,14 +228,13 @@ func (c *EcomClient) ExchangeRefreshTokenForIDToken(firebaseAPIKey, refreshToken
 		body, _ := ioutil.ReadAll(res.Body)
 		err = json.Unmarshal(body, &e)
 		if err != nil {
-			return nil, errors.Wrapf(err, "%s %s\n", e.Code, e.Message)
+			return nil, fmt.Errorf("%s %s: %w", e.Code, e.Message, err)
 		}
-
 	}
 	response := exchangeRefreshTokenResponse{}
 	err = json.NewDecoder(res.Body).Decode(&response)
 	if err != nil {
-		return nil, errors.Wrap(err, "json ecode error")
+		return nil, fmt.Errorf("json ecode error: %w", err)
 	}
 	return &configmgr.TokenAndRefreshToken{
 		IDToken:      response.IDToken,
@@ -275,7 +271,7 @@ func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(firebaseAPIKey, tok
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "creating new POST request failed")
+		return nil, fmt.Errorf("creating new POST request failed: %w", err)
 	}
 	defer res.Body.Close()
 
@@ -294,7 +290,7 @@ func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(firebaseAPIKey, tok
 		}
 		err = json.NewDecoder(res.Body).Decode(&badReqRes)
 		if err != nil {
-			return nil, errors.Wrap(err, "decode bad request response failed")
+			return nil, fmt.Errorf("decode failed: %w", err)
 		}
 		return nil, fmt.Errorf("%d %s", badReqRes.Error.Code, badReqRes.Error.Message)
 	} else if res.StatusCode > 400 {
@@ -304,7 +300,7 @@ func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(firebaseAPIKey, tok
 	tokenResponse := verifyCustomTokenResponse{}
 	err = json.NewDecoder(res.Body).Decode(&tokenResponse)
 	if err != nil {
-		return nil, errors.Wrap(err, "json decode failed")
+		return nil, fmt.Errorf("json decode failed: %w", err)
 	}
 	return &configmgr.TokenAndRefreshToken{
 		IDToken:      tokenResponse.IDToken,
@@ -324,24 +320,24 @@ func (c *EcomClient) SignInWithDevKey(key string) (token string, user *User, err
 
 	req, err := http.NewRequest("POST", uri, buf)
 	if err != nil {
-		return "", nil, fmt.Errorf("error creating new POST request: %v", err)
+		return "", nil, fmt.Errorf("error creating new POST request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
 	res, err := c.client.Do(req)
 	if err != nil {
-		return "", nil, fmt.Errorf("error executing HTTP POST to %v : %v", uri, err)
+		return "", nil, fmt.Errorf("error executing HTTP POST to %v : %w", uri, err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
-		return "", nil, errors.Wrapf(err, "%s", res.Status)
+		return "", nil, fmt.Errorf("%s", res.Status)
 	}
 
 	ct := tokenAndCustomerResponse{}
 	err = json.NewDecoder(res.Body).Decode(&ct)
 	if err != nil {
-		return "", nil, errors.Wrap(err, "custom token json decode error")
+		return "", nil, fmt.Errorf("custom token json decode error: %w", err)
 	}
 	return ct.CustomToken, &ct.User, nil
 }
@@ -351,24 +347,24 @@ func (c *EcomClient) SysInfo() (*SysInfo, error) {
 	uri := c.endpoint + "/sysinfo"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "http new request failed")
+		return nil, fmt.Errorf("http new request failed: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.jwt)
 	req.Header.Set("User-Agent", fmt.Sprintf("ecom/%s", Version))
 	res, err := c.client.Do(req)
 	if err != nil {
-		return nil, errors.Wrapf(err, "HTTP GET to %v failed", uri)
+		return nil, fmt.Errorf("HTTP GET to %v failed: %w", uri, err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
-		return nil, errors.Wrapf(err, "%s", res.Status)
+		return nil, fmt.Errorf("%s", res.Status)
 	}
 
 	var sysInfo SysInfo
 	if err := json.NewDecoder(res.Body).Decode(&sysInfo); err != nil {
-		return nil, errors.Wrapf(err, "failed to decode url %s", uri)
+		return nil, fmt.Errorf("failed to decode url %s: %w", uri, err)
 	}
 	return &sysInfo, nil
 }
@@ -397,17 +393,17 @@ func (c *EcomClient) GetConfig() (*FirebaseConfigResponse, error) {
 	uri := c.endpoint + "/config"
 	req, err := http.NewRequest("GET", uri, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "http new request failed")
+		return nil, fmt.Errorf("http new request failed: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	res, err := c.client.Do(req)
 	if err != nil {
-		return nil, errors.Wrapf(err, "http do to %v failed", uri)
+		return nil, fmt.Errorf("http do to %v failed: %w", uri, err)
 	}
 	defer res.Body.Close()
 	var f *ConfigContainerResponse
 	if err := json.NewDecoder(res.Body).Decode(&f); err != nil {
-		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
+		return nil, fmt.Errorf("json decode url %s failed: %w", uri, err)
 	}
 	return f.FirebaseConfig, nil
 }

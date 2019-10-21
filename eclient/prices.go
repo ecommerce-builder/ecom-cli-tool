@@ -7,8 +7,6 @@ import (
 	"net/url"
 	"strings"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 // PricesContainerRequest JSON request body.
@@ -53,7 +51,7 @@ func (c *EcomClient) SetPrices(productID, priceListID string, prices []*PriceReq
 
 	request, err := json.Marshal(&container)
 	if err != nil {
-		return nil, errors.Wrapf(err, "client: json marshal failed")
+		return nil, fmt.Errorf("client: json marshal failed: %w", err)
 	}
 
 	params := url.Values{}
@@ -64,21 +62,21 @@ func (c *EcomClient) SetPrices(productID, priceListID string, prices []*PriceReq
 	body := strings.NewReader(string(request))
 	res, err := c.request(http.MethodPut, uri, body)
 	if err != nil {
-		return nil, errors.Wrap(err, "request failed")
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return nil, errors.Wrapf(err, "client decode error")
+			return nil, fmt.Errorf("client decode error: %w", err)
 		}
-		return nil, errors.Errorf(fmt.Sprintf("Status: %d, Code: %s, Message: %s\n", e.Status, e.Code, e.Message))
+		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
 	}
 
 	var response PricesContainerResponse
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
-		return nil, errors.Wrapf(err, "json decode url %s failed", uri)
+		return nil, fmt.Errorf("json decode url %s failed: %w", uri, err)
 	}
 	return response.Data, nil
 }
