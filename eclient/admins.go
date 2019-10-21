@@ -15,7 +15,7 @@ type createAdminRequest struct {
 }
 
 // CreateAdmin calls the API Service to create a new administrator.
-func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*User, error) {
+func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*UserResponse, error) {
 	p := createAdminRequest{
 		Email:  email,
 		Passwd: passwd,
@@ -36,7 +36,7 @@ func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*User, erro
 	if res.StatusCode >= 400 {
 		return nil, fmt.Errorf("HTTP POST to %q return %s: %w", uri, res.Status, err)
 	}
-	user := User{}
+	user := UserResponse{}
 	err = json.NewDecoder(res.Body).Decode(&user)
 	if err != nil {
 		return nil, fmt.Errorf("create product response decode failed: %w", err)
@@ -45,7 +45,7 @@ func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*User, erro
 }
 
 // ListAdmins calls the API Service to get all administrators.
-func (c *EcomClient) ListAdmins() ([]*User, error) {
+func (c *EcomClient) ListAdmins() ([]*UserResponse, error) {
 	uri := c.endpoint + "/admins"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
@@ -53,7 +53,7 @@ func (c *EcomClient) ListAdmins() ([]*User, error) {
 	}
 	defer res.Body.Close()
 
-	users := make([]*User, 0, 8)
+	users := make([]*UserResponse, 0, 8)
 	err = json.NewDecoder(res.Body).Decode(&users)
 	if err != nil {
 		return nil, fmt.Errorf("list users response decode failed: %w", err)

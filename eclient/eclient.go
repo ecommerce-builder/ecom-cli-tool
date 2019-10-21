@@ -66,25 +66,13 @@ type SysInfo struct {
 	Env        sysInfoEnv `json:"env"`
 }
 
-// User details
-type User struct {
-	ID        string    `json:"id"`
-	UID       string    `json:"uid"`
-	Role      string    `json:"role"`
-	Email     string    `json:"email"`
-	Firstname string    `json:"firstname"`
-	Lastname  string    `json:"lastname"`
-	Created   time.Time `json:"created"`
-	Modified  time.Time `json:"modified"`
-}
-
 type devKeyRequest struct {
 	Key string `json:"key"`
 }
 
 type tokenAndCustomerResponse struct {
-	CustomToken string `json:"custom_token"`
-	User        User   `json:"user"`
+	CustomToken string       `json:"custom_token"`
+	User        UserResponse `json:"user"`
 }
 
 var timeout = time.Duration(10 * time.Second)
@@ -310,7 +298,7 @@ func (c *EcomClient) ExchangeCustomTokenForIDAndRefreshToken(firebaseAPIKey, tok
 
 // SignInWithDevKey exchanges a Developer Key for a Customer token.
 // https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=[API_KEY]
-func (c *EcomClient) SignInWithDevKey(key string) (token string, user *User, err error) {
+func (c *EcomClient) SignInWithDevKey(key string) (token string, user *UserResponse, err error) {
 	uri := c.endpoint + "/signin-with-devkey"
 	payload := devKeyRequest{
 		Key: key,

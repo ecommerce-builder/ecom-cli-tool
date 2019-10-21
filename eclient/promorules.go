@@ -57,8 +57,8 @@ type PromoRuleResponse struct {
 }
 
 // CreatePromoRule calls the API to create a new promo rule.
-func (c *EcomClient) CreatePromoRule(ctx context.Context, product *PromoRuleRequest) (*PromoRuleResponse, error) {
-	request, err := json.Marshal(&product)
+func (c *EcomClient) CreatePromoRule(ctx context.Context, p *PromoRuleRequest) (*PromoRuleResponse, error) {
+	request, err := json.Marshal(&p)
 	if err != nil {
 		return nil, fmt.Errorf("%w: client: json marshal failed", err)
 	}
