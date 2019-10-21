@@ -71,8 +71,8 @@ func (c *EcomClient) CreateUser(ctx context.Context, u *CreateUserRequest) (*Use
 	return &user, nil
 }
 
-// ListUsers calls the API Service to retreieve a list of users.
-func (c *EcomClient) ListUsers(ctx context.Context) ([]*UserResponse, error) {
+// GetUsers calls the API Service to retreieve a list of users.
+func (c *EcomClient) GetUsers(ctx context.Context) ([]*UserResponse, error) {
 	uri := c.endpoint + "/users"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {

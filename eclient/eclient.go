@@ -23,6 +23,7 @@ var userAgent string
 // EcomClient structure.
 type EcomClient struct {
 	endpoint string
+	hostname string
 	client   *http.Client
 	jwt      string
 }
@@ -86,8 +87,15 @@ func New(endpoint string) *EcomClient {
 		Transport: tr,
 		Timeout:   timeout,
 	}
+
+	url, err := url.Parse(endpoint)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return &EcomClient{
 		endpoint: endpoint,
+		hostname: url.Hostname(),
 		client:   client,
 	}
 }
