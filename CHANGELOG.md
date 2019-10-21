@@ -1,4 +1,7 @@
 # CHANGELOG
+## v0.18.0 (Mon 21 Oct 2019)
++ Create, get, list, update and delete webhooks.
+
 ## v0.17.0 (Mon 21 Oct 2019)
 + Create and list developer keys.
 + Hide developer key for profiles create sub command.
