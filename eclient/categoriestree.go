@@ -34,21 +34,21 @@ type CategoryTreeResponse struct {
 func (c *EcomClient) UpdateCategoriesTree(cats *CategoryRequest) error {
 	request, err := json.Marshal(&cats)
 	if err != nil {
-		return fmt.Errorf("client: json marshal failed: %w", err)
+		return fmt.Errorf("json marshal: %w", err)
 	}
 
-	uri := c.endpoint + "/categories-tree"
+	url := c.endpoint + "/categories-tree"
 	body := strings.NewReader(string(request))
-	res, err := c.request(http.MethodPut, uri, body)
+	res, err := c.request(http.MethodPut, url, body)
 	if err != nil {
-		return fmt.Errorf("request failed: %w", err)
+		return fmt.Errorf("request: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return fmt.Errorf("client decode error: %w", err)
+			return fmt.Errorf("decode: %w", err)
 		}
 		return fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
 	}

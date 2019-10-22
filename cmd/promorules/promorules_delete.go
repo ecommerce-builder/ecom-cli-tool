@@ -50,11 +50,11 @@ func NewCmdPromoRulesDelete() *cobra.Command {
 			}
 
 			err = client.DeletePromoRule(ctx, promoRuleID)
-			if err != eclient.ErrBadRequest {
+			if err == eclient.ErrBadRequest {
 				fmt.Fprintf(os.Stderr, "Bad request - this is likely an error with the command line tool - please report this\n")
 				os.Exit(1)
 			}
-			if err != eclient.ErrPromoRuleNotFound {
+			if err == eclient.ErrPromoRuleNotFound {
 				fmt.Fprintf(os.Stderr, "Promo rule not found. Use ecom promorules list to check.\n")
 				os.Exit(1)
 			}

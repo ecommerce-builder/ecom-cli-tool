@@ -2,10 +2,10 @@ package users
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"os"
+	"text/tabwriter"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
@@ -36,20 +36,27 @@ func NewCmdUsersCreate() *cobra.Command {
 				os.Exit(1)
 			}
 
-			fmt.Println(req.Role)
-			fmt.Println(req.Email)
-			fmt.Println(req.Password)
-			fmt.Println(req.Firstname)
-			fmt.Println(req.Lastname)
-
 			ctx := context.Background()
 			user, err := client.CreateUser(ctx, req)
 			if err != nil {
-				fmt.Printf("%+v\n", err)
-				fmt.Fprintf(os.Stderr, "error creating user: %+v", errors.Unwrap(err))
+				fmt.Fprintf(os.Stderr, "error creating user: %v\n", err.Error())
+				os.Exit(1)
 			}
 
-			fmt.Println(user)
+			format := "%v\t%v\t\n"
+			tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
+			fmt.Fprintf(tw, format, "User ID:", user.ID)
+			fmt.Fprintf(tw, format, "UID:", user.UID)
+			fmt.Fprintf(tw, format, "Role:", user.Role)
+			fmt.Fprintf(tw, format, "Price List ID:", user.PriceListID)
+			fmt.Fprintf(tw, format, "Email:", user.Email)
+			fmt.Fprintf(tw, format, "Firstname:", user.Firstname)
+			fmt.Fprintf(tw, format, "Lastname:", user.Lastname)
+			fmt.Fprintf(tw, format, "Created:",
+				user.Created.In(location).Format(timeDisplayFormat))
+			fmt.Fprintf(tw, format, "Modified:",
+				user.Modified.In(location).Format(timeDisplayFormat))
+			tw.Flush()
 		},
 	}
 	return cmd

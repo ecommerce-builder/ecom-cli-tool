@@ -21,7 +21,7 @@ func NewCmdDevKeysCreate() *cobra.Command {
 		os.Exit(1)
 	}
 	var cmd = &cobra.Command{
-		Use:   "create",
+		Use:   "create <email>",
 		Short: "Create a new developer key for a given user",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {

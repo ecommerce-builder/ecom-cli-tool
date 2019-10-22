@@ -35,14 +35,14 @@ type DevKeyResponse struct {
 func (c *EcomClient) CreateDeveloperKey(ctx context.Context, d *DevKeyRequest) (*DevKeyResponse, error) {
 	request, err := json.Marshal(&d)
 	if err != nil {
-		return nil, fmt.Errorf("%w: client: json marshal", err)
+		return nil, fmt.Errorf("json marshal: %w", err)
 	}
 
 	url := c.endpoint + "/developer-keys"
 	body := strings.NewReader(string(request))
 	res, err := c.request(http.MethodPost, url, body)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request failed", err)
+		return nil, fmt.Errorf("%w: request", err)
 	}
 	defer res.Body.Close()
 
@@ -51,14 +51,14 @@ func (c *EcomClient) CreateDeveloperKey(ctx context.Context, d *DevKeyRequest) (
 		dec := json.NewDecoder(res.Body)
 		dec.DisallowUnknownFields()
 		if err := dec.Decode(&e); err != nil {
-			return nil, fmt.Errorf("%w: client decode error", err)
+			return nil, fmt.Errorf("decode: %w", err)
 		}
 		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
 	}
 
 	var devKey DevKeyResponse
 	if err = json.NewDecoder(res.Body).Decode(&devKey); err != nil {
-		return nil, fmt.Errorf("%w: decode failed", err)
+		return nil, fmt.Errorf("%w: decode", err)
 	}
 	return &devKey, nil
 }
@@ -76,13 +76,13 @@ func (c *EcomClient) GetDeveloperKeys(ctx context.Context, userID string) ([]*De
 	}
 	res, err := c.request(http.MethodGet, url.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, fmt.Errorf("request: %w", err)
 	}
 	defer res.Body.Close()
 
 	var container DevKeysContainer
 	if err := json.NewDecoder(res.Body).Decode(&container); err != nil {
-		return nil, fmt.Errorf("decode failed: %w", err)
+		return nil, fmt.Errorf("decode: %w", err)
 	}
 	return container.Data, nil
 }

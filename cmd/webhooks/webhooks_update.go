@@ -36,14 +36,14 @@ func NewCmdWebhooksUpdate() *cobra.Command {
 			// promo_rule_code to id
 			webhookID := args[0]
 			if !cmdvalidate.IsValidUUID(webhookID) {
-				fmt.Fprintf(os.Stderr, "webhook_id must be a valid v4 uuid")
+				fmt.Fprintf(os.Stderr, "webhook_id must be a valid v4 uuid\n")
 				os.Exit(1)
 			}
 
 			ctx := context.Background()
 			existingWebhook, err := client.GetWebhook(ctx, webhookID)
 			if err == eclient.ErrWebhookNotFound {
-				fmt.Fprintf(os.Stderr, "webhook %s not found", webhookID)
+				fmt.Fprintf(os.Stderr, "webhook %s not found\n", webhookID)
 				os.Exit(1)
 			}
 			if err != nil {
@@ -53,23 +53,23 @@ func NewCmdWebhooksUpdate() *cobra.Command {
 
 			req, err := promptUpdateWebhook(existingWebhook.URL, existingWebhook.Events, existingWebhook.Enabled)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%+v", err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
 			}
 
 			// attempt to create the webhook
 			webhook, err := client.UpdateWebhook(ctx, webhookID, req)
 			if err == eclient.ErrEventTypeNotFound {
-				fmt.Fprint(os.Stderr, "one or more of the events are not known")
+				fmt.Fprint(os.Stderr, "one or more of the events are not known\n")
 				os.Exit(1)
 			}
 			if err == eclient.ErrWebhookExists {
-				fmt.Fprint(os.Stderr, "webhook with this URL already exists")
+				fmt.Fprint(os.Stderr, "webhook with this URL already exists\n")
 				os.Exit(1)
 			}
 			if err != nil {
 				fmt.Printf("%+v\n", err)
-				fmt.Fprintf(os.Stderr, "error creating user: %+v", errors.Unwrap(err))
+				fmt.Fprintf(os.Stderr, "error creating user: %+v\n", errors.Unwrap(err))
 				os.Exit(1)
 			}
 
