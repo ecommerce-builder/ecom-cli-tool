@@ -1,4 +1,10 @@
 # CHANGELOG
+
+## v0.19.0 (Mon 22 Oct 2019)
++ Remove admins command as it now exists under users.
++ Product to product associations groups create, get, list and delete.
++ Product to product associations list and delete.
+
 ## v0.18.0 (Mon 21 Oct 2019)
 + Create, get, list, update and delete webhooks.
 
