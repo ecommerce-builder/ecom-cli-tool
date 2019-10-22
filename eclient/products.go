@@ -126,23 +126,23 @@ func (c *EcomClient) ReplaceProduct(productID string, product *ProductRequest) (
 	return &pr, nil
 }
 
-// GetProduct calls the API Service to get a product by SKU.
-func (c *EcomClient) GetProduct(sku string) (*ProductResponse, error) {
-	uri := c.endpoint + "/products/" + sku
-	res, err := c.request(http.MethodGet, uri, nil)
+// GetProduct calls the API Service to get a product by id.
+func (c *EcomClient) GetProduct(ctx context.Context, productID string) (*ProductResponse, error) {
+	url := c.endpoint + "/products/" + productID
+	res, err := c.request(http.MethodGet, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, fmt.Errorf("request: %w", err)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode == 404 {
 		return nil, ErrProductNotFound
 	} else if res.StatusCode >= 400 {
-		return nil, fmt.Errorf("HTTP GET to %q returned %s: %w", uri, res.Status, err)
+		return nil, fmt.Errorf("HTTP GET to %q returned %s: %w", url, res.Status, err)
 	}
 	var p ProductResponse
 	if err := json.NewDecoder(res.Body).Decode(&p); err != nil {
-		return nil, fmt.Errorf("decode failed: %w", err)
+		return nil, fmt.Errorf("decode: %w", err)
 	}
 	return &p, nil
 }
@@ -194,20 +194,24 @@ func (c *EcomClient) ProductExists(sku string) (bool, error) {
 	return true, fmt.Errorf("unknown HTTP status code %d: %w", res.StatusCode, err)
 }
 
-// DeleteProduct calls the API Service to delete a product resource.
-func (c *EcomClient) DeleteProduct(sku string) error {
-	exists, err := c.ProductExists(sku)
+// DeleteProduct calls the API Service to delete a product by id.
+func (c *EcomClient) DeleteProduct(ctx context.Context, productID string) error {
+	url := fmt.Sprintf("%s/products/%s", c.endpoint, productID)
+	res, err := c.request(http.MethodDelete, url, nil)
 	if err != nil {
-		return fmt.Errorf("product exists failed: %w", err)
-	}
-	if !exists {
-		return nil
-	}
-	uri := c.endpoint + "/products/" + sku
-	res, err := c.request(http.MethodHead, uri, nil)
-	if err != nil {
-		return fmt.Errorf("request failed: %w", err)
+		return fmt.Errorf("request: %w", err)
 	}
 	defer res.Body.Close()
+
+	fmt.Println(res.StatusCode)
+	if res.StatusCode == 204 {
+		return nil
+	}
+	if res.StatusCode == 400 {
+		return ErrBadRequest
+	}
+	if res.StatusCode == 404 {
+		return ErrProductNotFound
+	}
 	return nil
 }

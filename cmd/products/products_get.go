@@ -1,20 +1,16 @@
 package products
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
-
-	"gopkg.in/yaml.v2"
+	"text/tabwriter"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
 )
-
-type productResponseContainer struct {
-	Product *eclient.ProductResponse `yaml:"product"`
-}
 
 // NewCmdProductsGet returns new initialized instance of the get sub command
 func NewCmdProductsGet() *cobra.Command {
@@ -33,35 +29,47 @@ func NewCmdProductsGet() *cobra.Command {
 			if err := client.SetToken(&current); err != nil {
 				log.Fatal(err)
 			}
+
 			sku := args[0]
-			product, err := client.GetProduct(sku)
+			ctx := context.Background()
+			products, err := client.GetProducts(ctx)
 			if err != nil {
-				if err == eclient.ErrProductNotFound {
-					fmt.Printf("Product %s not found.\n", sku)
-					os.Exit(0)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
+			}
+			var productID string
+			for _, v := range products {
+				if v.SKU == sku {
+					productID = v.ID
+					break
 				}
-				fmt.Fprintf(os.Stderr, "%+v\n", err)
+			}
+			if productID == "" {
+				fmt.Fprintf(os.Stderr, "product with sku %q not found", sku)
 				os.Exit(1)
 			}
-			container := productResponseContainer{
-				Product: product,
+
+			product, err := client.GetProduct(ctx, productID)
+			if err == eclient.ErrProductNotFound {
+				fmt.Printf("Product %s not found.\n", sku)
+				os.Exit(0)
 			}
-			enc := yaml.NewEncoder(os.Stdout)
-			//enc.SetIndent(2)
-			if err := enc.Encode(container); err != nil {
-				fmt.Fprintf(os.Stderr, "%+v\n", err)
-				os.Exit(1)
-			}
-			if err := enc.Close(); err != nil {
+			if err != nil {
 				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
 			}
 
-			//b, err := yaml.Marshal(product)
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-			//fmt.Printf("%s\n", string(b))
+			format := "%v\t%v\t\n"
+			tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
+			fmt.Fprintf(tw, format, "Product ID:", product.ID)
+			fmt.Fprintf(tw, format, "Path:", product.Path)
+			fmt.Fprintf(tw, format, "SKU:", product.SKU)
+			fmt.Fprintf(tw, format, "Name:", product.Name)
+			fmt.Fprintf(tw, format, "Created:",
+				product.Created.In(location).Format(timeDisplayFormat))
+			fmt.Fprintf(tw, format, "Modified:",
+				product.Modified.In(location).Format(timeDisplayFormat))
+			tw.Flush()
 		},
 	}
 	return cmd

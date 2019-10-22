@@ -1,6 +1,7 @@
 package products
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -8,7 +9,6 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
-	"gopkg.in/go-playground/validator.v9"
 )
 
 // NewCmdProductsDelete returns new initialized instance of the delete sub command
@@ -30,15 +30,28 @@ func NewCmdProductsDelete() *cobra.Command {
 			}
 
 			sku := args[0]
-			validate := validator.New()
-			err = validate.Var(sku, "gt=1,lt=10")
+			ctx := context.Background()
+			products, err := client.GetProducts(ctx)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
+			}
+			var productID string
+			for _, v := range products {
+				if v.SKU == sku {
+					productID = v.ID
+					break
+				}
+			}
+			if productID == "" {
+				fmt.Fprintf(os.Stderr, "product with sku %q not found\n", sku)
+				os.Exit(1)
 			}
 
-			err = client.DeleteProduct(sku)
+			err = client.DeleteProduct(ctx, productID)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 		},
 	}
