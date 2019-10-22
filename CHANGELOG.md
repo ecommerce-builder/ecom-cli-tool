@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.19.1 (Mon 22 Oct 2019)
++ Fix products get, list and delete as API now uses product ids, not skus.
+
 ## v0.19.0 (Mon 22 Oct 2019)
 + Remove admins command as it now exists under users.
 + Product to product associations groups create, get, list and delete.
