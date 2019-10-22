@@ -106,7 +106,7 @@ func (c *EcomClient) GetPromoRule(ctx context.Context, promoRuleID string) (*Pro
 
 	var p PromoRuleResponse
 	if err := json.NewDecoder(res.Body).Decode(&p); err != nil {
-		return nil, fmt.Errorf("decode failed: %w", err)
+		return nil, fmt.Errorf("decode: %w", err)
 	}
 	return &p, nil
 }
@@ -116,13 +116,13 @@ func (c *EcomClient) GetPromoRules(ctx context.Context) ([]*PromoRuleResponse, e
 	uri := c.endpoint + "/promo-rules"
 	res, err := c.request(http.MethodGet, uri, nil)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, fmt.Errorf("request: %w", err)
 	}
 	defer res.Body.Close()
 
 	var container PromoRulesContainerResponse
 	if err := json.NewDecoder(res.Body).Decode(&container); err != nil {
-		return nil, fmt.Errorf("decode failed: %w", err)
+		return nil, fmt.Errorf("decode: %w", err)
 	}
 	return container.Data, nil
 }

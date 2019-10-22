@@ -1,10 +1,11 @@
 package cmd
 
 import (
-	"github.com/ecommerce-builder/ecom-cli-tool/cmd/admins"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/categoriestree"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/devkeys"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/pcrelations"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/ppagroups"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/ppassocs"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/pricelists"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/products"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/profiles"
@@ -27,12 +28,13 @@ func NewEcomCmd() *cobra.Command {
 		Short: "ecom is a CLI tool for administering ecommerce systems",
 		Long:  `See the user guide for more details.`,
 	}
-	cmd.AddCommand(admins.NewCmdAdmins())
 	cmd.AddCommand(pcrelations.NewCmdPCRelations())
 	cmd.AddCommand(categoriestree.NewCmdCategoriesTree())
 	cmd.AddCommand(users.NewCmdUsers())
 	cmd.AddCommand(devkeys.NewCmdDevKeys())
 	cmd.AddCommand(products.NewCmdProducts())
+	cmd.AddCommand(ppassocs.NewCmdPPAssocs())
+	cmd.AddCommand(ppagroups.NewCmdPPAGroups())
 	cmd.AddCommand(pricelists.NewCmdPriceLists())
 	cmd.AddCommand(profiles.NewCmdProfiles())
 	cmd.AddCommand(promorules.NewCmdPromoRules())

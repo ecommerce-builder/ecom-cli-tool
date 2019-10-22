@@ -13,11 +13,11 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func isValidEndpoint(ep string, valid []string) (bool, error) {
+func isValidEndpoint(endpoint string, valid []string) (bool, error) {
 	if len(valid) == 0 {
 		return true, nil
 	}
-	url, err := url.Parse(ep)
+	url, err := url.Parse(endpoint)
 	if err != nil {
 		return false, err
 	}
@@ -41,8 +41,7 @@ func NewCmdCategoriesTreeApply() *cobra.Command {
 	var cmd = &cobra.Command{
 		Use:   "apply <catalog.yaml>",
 		Short: "Replace the categories tree",
-
-		Args: cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
@@ -76,8 +75,9 @@ func NewCmdCategoriesTreeApply() *cobra.Command {
 			root := catalog.Category
 			catRequest := buildRequest(&root)
 
-			if err = client.UpdateCategoriesTree(catRequest); err != nil {
-				log.Fatal(err)
+			if err := client.UpdateCategoriesTree(catRequest); err != nil {
+				fmt.Fprintf(os.Stderr, "%+v", err)
+				os.Exit(1)
 			}
 		},
 	}
