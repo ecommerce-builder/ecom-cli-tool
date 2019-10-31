@@ -1,4 +1,4 @@
-package users
+package carts
 
 import (
 	"context"
@@ -21,23 +21,22 @@ func init() {
 	var err error
 	location, err = time.LoadLocation("Europe/London")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "time.LoadLocation(%q) failed: %+v\n",
-			"Europe/London", err.Error())
+		fmt.Fprintf(os.Stderr, "time.LoadLocation(%q) failed: %+v", "Europe/London", err.Error())
 		return
 	}
 }
 
-// NewCmdUsersList returns new initialized instance of list sub command
-func NewCmdUsersList() *cobra.Command {
+// NewCmdCartsCreate returns new initialized instance of the create sub command
+func NewCmdCartsCreate() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
+
 	var cmd = &cobra.Command{
-		Use:   "list",
-		Short: "List users",
-		Long:  ``,
+		Use:   "create",
+		Short: "Create a new shopping cart",
 		Run: func(cmd *cobra.Command, args []string) {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
@@ -45,24 +44,25 @@ func NewCmdUsersList() *cobra.Command {
 				log.Fatal(err)
 			}
 
+			// load all price lists
 			ctx := context.Background()
-			users, err := client.GetUsers(ctx)
+			cart, err := client.CreateCart(ctx)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%v\n", err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
 			}
 
-			format := "%s\t%s\t%s\t%s\t%s\t%s\t%v\n"
+			format := "%v\t%v\t\n"
 			tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
-			fmt.Fprintf(tw, format, "User ID", "UID", "Role", "Email", "Firstname", "Lastname", "Created")
-			fmt.Fprintf(tw, format, "-------", "---", "----", "-----", "---------", "--------", "-------")
-
-			for _, user := range users {
-				fmt.Fprintf(tw, format,
-					user.ID, user.UID, user.Role, user.Email, user.Firstname, user.Lastname, user.Created.In(location).Format(timeDisplayFormat))
-			}
-
+			fmt.Fprintf(tw, format, "Cart ID:", cart.ID)
+			fmt.Fprintf(tw, format, "Locked:", cart.Locked)
+			fmt.Fprintf(tw, format, "Created:",
+				cart.Created.In(location).Format(timeDisplayFormat))
+			fmt.Fprintf(tw, format, "Modified:",
+				cart.Modified.In(location).Format(timeDisplayFormat))
 			tw.Flush()
+
+			fmt.Fprintf(os.Stdout, "export ECOM_CLI_CART_ID=%s\n", cart.ID)
 		},
 	}
 	return cmd

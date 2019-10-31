@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.20.0 (Thu, 31 Oct 2019)
++ Cart management sub command for cart creation and product add/update/list/remove and empty.
+
 ## v0.19.1 (Mon 22 Oct 2019)
 + Fix products get, list and delete as API now uses product ids, not skus.
 
