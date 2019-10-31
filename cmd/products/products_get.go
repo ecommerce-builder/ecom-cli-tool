@@ -45,7 +45,7 @@ func NewCmdProductsGet() *cobra.Command {
 				}
 			}
 			if productID == "" {
-				fmt.Fprintf(os.Stderr, "product with sku %q not found", sku)
+				fmt.Fprintf(os.Stderr, "product with sku %q not found\n", sku)
 				os.Exit(1)
 			}
 

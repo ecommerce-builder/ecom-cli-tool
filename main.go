@@ -15,7 +15,7 @@ func main() {
 	eclient.Version = version
 	root := cmd.NewEcomCmd()
 	if err := root.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "%+v", err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
 }
