@@ -11,5 +11,6 @@ func NewCmdShippingTariffsRules() *cobra.Command {
 		Short: "Shipping Tariff Management",
 	}
 	cmd.AddCommand(NewCmdShippingTariffsList())
+	cmd.AddCommand(NewCmdShippingTarrifsCreate())
 	return cmd
 }
