@@ -51,23 +51,24 @@ func NewCmdPromoRulesList() *cobra.Command {
 				os.Exit(1)
 			}
 
-			format := "%s\t%s\t%s\t%s\t%s\t%s\t%v\t%s\n"
+			format := "%s\t%s\t%s\t%s\t%s\t%v\t%s\n"
 			tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
-			fmt.Fprintf(tw, format, "Promo Rule ID", "Promo Rule code", "Name", "Start At", "End At", "Type", "Amount", "Target")
-			fmt.Fprintf(tw, format, "-------------", "---------------", "----", "--------", "------", "----", "------", "------")
+			fmt.Fprintf(tw, format, "Promo Rule code", "Name", "Start At", "End At", "Type", "Amount", "Target")
+			fmt.Fprintf(tw, format, "---------------", "----", "--------", "------", "----", "------", "------")
 			for _, p := range promoRules {
-				var startAt string
+				var startAt, endAt string
 				if p.StartAt == nil {
 					startAt = "-"
 				} else {
 					startAt = p.StartAt.In(location).Format(timeDisplayFormat)
 				}
+				if p.EndAt == nil {
+					endAt = "-"
+				} else {
+					endAt = p.EndAt.In(location).Format(timeDisplayFormat)
+				}
 				// fmt.Printf("#%+v", p)
-				fmt.Fprintf(tw, format,
-					p.ID, p.PromoRuleCode, p.Name,
-					startAt,
-					p.EndAt.In(location).Format(timeDisplayFormat),
-					p.Type, p.Amount, p.Target)
+				fmt.Fprintf(tw, format, p.PromoRuleCode, p.Name, startAt, endAt, p.Type, p.Amount, p.Target)
 			}
 			tw.Flush()
 		},
