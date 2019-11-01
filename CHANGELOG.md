@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.21.0 (Fri, 1 Nov 2019)
++ Create, get, list and delete promo rules. Uses interactive prompt.
++ Create a shipping tariff with interactive prompt.
+
 ## v0.20.0 (Thu, 31 Oct 2019)
 + Cart management sub command for cart creation and product add/update/list/remove and empty.
 
