@@ -45,19 +45,32 @@ type sysInfoGoog struct {
 }
 
 type sysInfoFirebase struct {
-	ProjectID string `json:"ECOM_FIREBASE_PROJECT_ID"`
-	WebAPIKey string `json:"ECOM_FIREBASE_WEB_API_KEY"`
+	APIKEY            string `json:"apiKey"`
+	AuthDomain        string `json:"authDomain"`
+	DatabaseURL       string `json:"databaseURL"`
+	ProjectID         string `json:"projectId"`
+	StorageBucket     string `json:"storageBucket"`
+	MessagingSenderID string `json:"messagingSenderId"`
+	AppID             string `json:"appId"`
+}
+
+type sysInfoStripe struct {
+	StripeSuccessURL string `json:"ECOM_STRIPE_SUCCESS_URL"`
+	StripeCancelURL  string `json:"ECOM_STRIPE_CANCEL_URL"`
 }
 
 type sysInfoApp struct {
-	HTTPPort  string `json:"PORT"`
-	RootEmail string `json:"ECOM_APP_ROOT_EMAIL"`
+	AppPort                     string `json:"PORT"`
+	AppRootEmail                string `json:"ECOM_APP_ROOT_EMAIL"`
+	AppEnableStackDriverLogging bool   `json:"ECOM_APP_ENABLE_STACKDRIVER_LOGGING"`
+	AppEndpoint                 string `json:"ECOM_APP_ENDPOINT"`
 }
 
 type sysInfoEnv struct {
 	Pg       sysInfoPg       `json:"pg"`
 	Goog     sysInfoGoog     `json:"google"`
 	Firebase sysInfoFirebase `json:"firebase"`
+	Stripe   sysInfoStripe   `json:"stripe"`
 	App      sysInfoApp      `json:"app"`
 }
 

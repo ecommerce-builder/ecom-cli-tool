@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.21.1 (Sun, 3 Nov 2019)
++ Fix sysinfo to include stripe and additional app settings.
++ Update Go dependencies using `go get -v all`.
++ Requires API at or above `v0.61.2`.
+
 ## v0.21.0 (Fri, 1 Nov 2019)
 + Create, get, list and delete promo rules. Uses interactive prompt.
 + Create a shipping tariff with interactive prompt.
