@@ -4,6 +4,7 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/address"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/carts"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/categoriestree"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/coupons"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/devkeys"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/pcrelations"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/ppagroups"
@@ -32,6 +33,7 @@ func NewEcomCmd() *cobra.Command {
 	}
 	cmd.AddCommand(address.NewCmdAddress())
 	cmd.AddCommand(carts.NewCmdCarts())
+	cmd.AddCommand(coupons.NewCmdCoupons())
 	cmd.AddCommand(pcrelations.NewCmdPCRelations())
 	cmd.AddCommand(categoriestree.NewCmdCategoriesTree())
 	cmd.AddCommand(users.NewCmdUsers())

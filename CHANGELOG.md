@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.23.0 (Tue, 5 Nov 2019)
++ Coupon management command.
+
+## v0.22.0 (Tue, 5 Nov 2019)
++ Address sub command.
++ Reintroduce `pkg/errors` for stacktracing.
+
 ## v0.21.1 (Sun, 3 Nov 2019)
 + Fix sysinfo to include stripe and additional app settings.
 + Update Go dependencies using `go get -v all`.
