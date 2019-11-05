@@ -3,11 +3,12 @@ package eclient
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // ErrWebhookExists webhook already exists
@@ -152,7 +153,7 @@ func (c *EcomClient) UpdateWebhook(ctx context.Context, webhookID string, req *U
 
 	var w WebhookResponse
 	if err := json.NewDecoder(res.Body).Decode(&w); err != nil {
-		return nil, fmt.Errorf("json decode url %s failed: %w", url, err)
+		return nil, errors.Wrapf(err, "json decode url %s", url)
 	}
 	return &w, nil
 }

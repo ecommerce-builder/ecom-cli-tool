@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // UserContainer object
@@ -86,7 +88,7 @@ func (c *EcomClient) GetUsers(ctx context.Context) ([]*UserResponse, error) {
 
 	var userContainer UserContainer
 	if err := json.NewDecoder(res.Body).Decode(&userContainer); err != nil {
-		return nil, fmt.Errorf("json decode url %s failed: %w", uri, err)
+		return nil, errors.Wrapf(err, "json decode url", uri)
 	}
 	return userContainer.Data, nil
 }

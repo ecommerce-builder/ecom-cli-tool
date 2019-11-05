@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 
 	"gopkg.in/yaml.v2"
@@ -32,7 +31,8 @@ func NewCmdPCRelationsApply() *cobra.Command {
 			client := eclient.New(current.Endpoint)
 			err := client.SetToken(&current)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			data, err := ioutil.ReadFile(args[0])
@@ -44,7 +44,8 @@ func NewCmdPCRelationsApply() *cobra.Command {
 			var relationships eclient.ProductCategoryRelationsYAML
 			err = yaml.Unmarshal([]byte(data), &relationships)
 			if err != nil {
-				log.Fatalf("error: %v", err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			// retrieve a list of all products and build a map
@@ -101,9 +102,9 @@ func NewCmdPCRelationsApply() *cobra.Command {
 
 			err = client.UpdateProductCategoryRelations(rels)
 			if err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
-			os.Exit(0)
 		},
 	}
 	return cmd

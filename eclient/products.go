@@ -3,12 +3,13 @@ package eclient
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // ErrProductNotFound indicates the product with given SKU could not be found.
@@ -173,7 +174,7 @@ func (c *EcomClient) request(method, uri string, body io.Reader) (*http.Response
 	client := &http.Client{}
 	res, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("do HTTP %s request failed: %w", req.Method, err)
+		return nil, errors.Wrapf(err, "do HTTP %s request", req.Method)
 	}
 	return res, nil
 }

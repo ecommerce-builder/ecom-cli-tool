@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // CategoryRequest body for updating the categories tree.
@@ -81,7 +83,7 @@ func (c *EcomClient) GetCategoriesTree() (*CategoryTreeResponse, error) {
 
 	var tree CategoryTreeResponse
 	if err := json.NewDecoder(res.Body).Decode(&tree); err != nil {
-		return nil, fmt.Errorf("json decode url %s failed: %w", uri, err)
+		return nil, errors.Wrapf(err, "json decode url %s", uri)
 	}
 	return &tree, nil
 }

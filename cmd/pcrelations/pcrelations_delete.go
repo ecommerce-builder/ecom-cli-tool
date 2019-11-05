@@ -2,7 +2,6 @@ package pcrelations
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
@@ -24,12 +23,13 @@ func NewCmdPCRelationsDelete() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 			if err = client.DeleteProductCategoryRelations(); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
-			os.Exit(0)
 		},
 	}
 	return cmd

@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -29,16 +28,17 @@ func NewCmdPromoRulesCreate() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
-			req, err := promptCreatePromoRule(client)
+			ctx := context.Background()
+			req, err := promptCreatePromoRule(ctx, client)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)
 				os.Exit(1)
 			}
 
-			ctx := context.Background()
 			promoRule, err := client.CreatePromoRule(ctx, req)
 			if err != nil {
 				fmt.Printf("%+v\n", err)
@@ -51,7 +51,7 @@ func NewCmdPromoRulesCreate() *cobra.Command {
 	return cmd
 }
 
-func promptCreatePromoRule(client *eclient.EcomClient) (*eclient.PromoRuleRequest, error) {
+func promptCreatePromoRule(ctx context.Context, client *eclient.EcomClient) (*eclient.PromoRuleRequest, error) {
 	var req eclient.PromoRuleRequest
 
 	// promo_rule_code
@@ -171,7 +171,7 @@ func promptCreatePromoRule(client *eclient.EcomClient) (*eclient.PromoRuleReques
 	switch req.Target {
 	case "product":
 		// build a list of products
-		products, err := client.GetProducts(context.TODO())
+		products, err := client.GetProducts(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("%w: client.GetProducts(ctx) failed", err)
 		}
@@ -215,7 +215,6 @@ func promptCreatePromoRule(client *eclient.EcomClient) (*eclient.PromoRuleReques
 		req.CategoryID = categoryMap[path]
 	case "shipping_tariff":
 		// build a list and map of shipping tariffs
-		ctx := context.Background()
 		tariffs, err := client.GetShippingTariffs(ctx)
 		if err != nil {
 			return nil, fmt.Errorf("%w: client.GetShippingTariffs(ctx) failed", err)

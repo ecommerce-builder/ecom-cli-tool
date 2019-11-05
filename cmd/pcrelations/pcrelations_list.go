@@ -2,7 +2,6 @@ package pcrelations
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
@@ -25,12 +24,14 @@ func NewCmdPCRelationsList() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			pcrelations, err := client.GetProductCategoryRelations()
 			if err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			categoryPathToProductList := make(map[string][]string)

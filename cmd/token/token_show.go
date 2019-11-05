@@ -2,7 +2,6 @@ package token
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
@@ -25,7 +24,8 @@ func NewCmdTokenShow() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			file, err := configmgr.TokenFilename(&current)

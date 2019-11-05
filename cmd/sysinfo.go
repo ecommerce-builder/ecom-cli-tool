@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"text/tabwriter"
 
@@ -25,7 +24,8 @@ func NewCmdSysInfo() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			ecomClient := eclient.New(current.Endpoint)
 			if err := ecomClient.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 			sysInfo, err := ecomClient.SysInfo()
 			if err != nil {
