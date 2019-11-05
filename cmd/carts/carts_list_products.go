@@ -3,7 +3,6 @@ package carts
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"text/tabwriter"
 
@@ -27,7 +26,8 @@ func NewCmdCartListProducts() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			cartID := os.Getenv("ECOM_CLI_CART_ID")

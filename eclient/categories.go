@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // CategoryContainer is container struct for a list of Category
@@ -53,7 +55,7 @@ func (c *EcomClient) GetCategories() ([]*Category, error) {
 
 	var categoryContainer CategoryContainer
 	if err := json.NewDecoder(res.Body).Decode(&categoryContainer); err != nil {
-		return nil, fmt.Errorf("json decode url %s failed: %w", uri, err)
+		return nil, errors.Wrapf(err, "json decode url %s", uri)
 	}
 	return categoryContainer.Data, nil
 }

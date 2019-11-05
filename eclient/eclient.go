@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
+	"github.com/pkg/errors"
 )
 
 // Version string
@@ -103,7 +104,8 @@ func New(endpoint string) *EcomClient {
 
 	url, err := url.Parse(endpoint)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Fprintf(os.Stderr, "%+v\n", err)
+		os.Exit(1)
 	}
 
 	return &EcomClient{
@@ -179,7 +181,7 @@ func (c *EcomClient) SetToken(cfg *configmgr.EcomConfigEntry) error {
 	if claims.ExpiresAt-utcNow <= 0 {
 		f, err := c.GetConfig()
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		tar, err = c.ExchangeRefreshTokenForIDToken(f.APIKEY, tar.RefreshToken)
 		if err != nil {
@@ -412,7 +414,7 @@ func (c *EcomClient) GetConfig() (*FirebaseConfigResponse, error) {
 	defer res.Body.Close()
 	var f *ConfigContainerResponse
 	if err := json.NewDecoder(res.Body).Decode(&f); err != nil {
-		return nil, fmt.Errorf("json decode url %s failed: %w", uri, err)
+		return nil, errors.Wrapf(err, "json decode url %s", uri)
 	}
 	return f.FirebaseConfig, nil
 }

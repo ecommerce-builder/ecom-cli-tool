@@ -3,7 +3,6 @@ package users
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"text/tabwriter"
 
@@ -27,7 +26,8 @@ func NewCmdUsersCreate() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			req, err := promptCreateUser(client)

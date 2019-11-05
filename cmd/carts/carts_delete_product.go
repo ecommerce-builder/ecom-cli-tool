@@ -3,7 +3,6 @@ package carts
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/cmdvalidate"
@@ -27,7 +26,8 @@ func NewCmdCartDeleteProduct() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			cartProductID := args[0]

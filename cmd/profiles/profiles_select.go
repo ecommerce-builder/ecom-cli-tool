@@ -2,7 +2,6 @@ package profiles
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -31,7 +30,8 @@ func NewCmdProfilesSelect() *cobra.Command {
 			name := sel[:strings.Index(sel, "(")-1]
 			fmt.Fprintf(os.Stdout, "Profile %q selected.\n", name)
 			if err := configmgr.WriteCurrentProject(name); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 		},
 	}

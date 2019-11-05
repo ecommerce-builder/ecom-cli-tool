@@ -3,7 +3,6 @@ package webhooks
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"text/tabwriter"
 	"time"
@@ -42,7 +41,8 @@ func NewCmdWebhooksGet() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			webhookID := args[0]

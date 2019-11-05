@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/address"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/carts"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/categoriestree"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/devkeys"
@@ -29,6 +30,7 @@ func NewEcomCmd() *cobra.Command {
 		Short: "ecom is a CLI tool for administering ecommerce systems",
 		Long:  `See the user guide for more details.`,
 	}
+	cmd.AddCommand(address.NewCmdAddress())
 	cmd.AddCommand(carts.NewCmdCarts())
 	cmd.AddCommand(pcrelations.NewCmdPCRelations())
 	cmd.AddCommand(categoriestree.NewCmdCategoriesTree())

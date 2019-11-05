@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // PricesContainerRequest JSON request body.
@@ -76,7 +78,7 @@ func (c *EcomClient) SetPrices(productID, priceListID string, prices []*PriceReq
 
 	var response PricesContainerResponse
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
-		return nil, fmt.Errorf("json decode url %s failed: %w", uri, err)
+		return nil, errors.Wrapf(err, "json decode url %s", uri)
 	}
 	return response.Data, nil
 }

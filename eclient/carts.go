@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 // ErrCartNotFound error
@@ -178,7 +179,7 @@ func (c *EcomClient) UpdateCartProduct(ctx context.Context, cartProductID string
 	if res.StatusCode == 200 {
 		var cartProduct CartProduct
 		if err := json.NewDecoder(res.Body).Decode(&cartProduct); err != nil {
-			return nil, fmt.Errorf("json decode url %s failed: %w", url, err)
+			return nil, errors.Wrapf(err, "json decode url %s", url)
 		}
 		return &cartProduct, nil
 	}

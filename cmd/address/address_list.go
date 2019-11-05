@@ -1,4 +1,4 @@
-package devkeys
+package address
 
 import (
 	"context"
@@ -25,17 +25,17 @@ func init() {
 	}
 }
 
-// NewCmdDevKeysList returns new initialized instance of list sub command
-func NewCmdDevKeysList() *cobra.Command {
+// NewCmdAddressList returns new initialized instance of the list sub command
+func NewCmdAddressList() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
+
 	var cmd = &cobra.Command{
 		Use:   "list <email>",
-		Short: "List developer keys",
-		Long:  ``,
+		Short: "list addressess for a user",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			current := cfgs.Configurations[curCfg]
@@ -61,27 +61,41 @@ func NewCmdDevKeysList() *cobra.Command {
 			}
 
 			if _, ok := userMap[email]; !ok {
-				fmt.Fprintf(os.Stderr, "Email %s did not match any users\n", email)
+				fmt.Fprintf(os.Stderr, "email %s did not match any users\n", email)
 				os.Exit(1)
 			}
 
-			devKeys, err := client.GetDeveloperKeys(ctx, userMap[email])
+			addresses, err := client.GetAddressesByUser(ctx, userMap[email])
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "%v\n", err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
 			}
 
-			format := "%s\t%s\t%v\n"
+			format := "%s\t%s\t%s\t%v\t%s\t%v\t%s\t%s\t%v\t%v\n"
 			tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
-			fmt.Fprintf(tw, format, "Developer Key ID", "Key", "Created")
-			fmt.Fprintf(tw, format, "----------------", "---", "-------")
-
-			for _, devKey := range devKeys {
-				fmt.Fprintf(tw, format,
-					devKey.ID, devKey.Key,
-					devKey.Created.In(location).Format(timeDisplayFormat))
+			fmt.Fprintf(tw, format, "Address ID", "Contact Name",
+				"Address 1", "Address 2", "City", "County",
+				"Postcode", "Country Code", "Created", "Modified")
+			fmt.Fprintf(tw, format, "----------", "------------",
+				"---------", "---------", "----", "------",
+				"--------", "------------", "-------", "--------")
+			for _, a := range addresses {
+				addr2 := "-"
+				if a.Addr2 != nil {
+					addr2 = *a.Addr2
+				}
+				county := "-"
+				if a.County != nil {
+					county = *a.County
+				}
+				fmt.Fprintf(tw, format, a.ID,
+					a.ContactName, a.Addr1, addr2,
+					a.City, county, a.Postcode,
+					a.CountryCode,
+					a.Created.In(location).Format(timeDisplayFormat),
+					a.Modified.In(location).Format(timeDisplayFormat))
 			}
-
+			fmt.Fprintf(tw, "(%d addresses found)\n", len(addresses))
 			tw.Flush()
 		},
 	}

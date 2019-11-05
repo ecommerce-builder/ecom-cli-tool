@@ -4,48 +4,16 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"text/tabwriter"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
+	"github.com/ecommerce-builder/ecom-cli-tool/service"
 	"github.com/spf13/cobra"
 	"gopkg.in/AlecAivazis/survey.v1"
 )
-
-var countryCodes []string
-
-func init() {
-	countryCodes = []string{
-		"UK - United Kingdom",
-		"AT - Austria",
-		"BG - Bulgaria",
-		"CZ - Czechia",
-		"DK - Denmark",
-		"EE - Estonia",
-		"FI - Finland",
-		"FR - France",
-		"DE - Germany",
-		"HU - Hungary",
-		"IT - Italy",
-		"IE - Ireland",
-		"LT - Lithuania",
-		"LU - Luxembourg",
-		"NL - Netherlands",
-		"NO - Norway",
-		"PL - Poland",
-		"PT - Portugal",
-		"RO - Romania",
-		"SK - Slovakia",
-		"SI - Slovenia",
-		"ES - Spain (including Balearic islands)",
-		"SE - Sweden",
-		"CH - Switzerland",
-		"US - United States",
-	}
-}
 
 // NewCmdShippingTarrifsCreate returns new initialized instance of create sub command
 func NewCmdShippingTarrifsCreate() *cobra.Command {
@@ -61,7 +29,8 @@ func NewCmdShippingTarrifsCreate() *cobra.Command {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
 			if err := client.SetToken(&current); err != nil {
-				log.Fatal(err)
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
 			}
 
 			// get the request params
@@ -101,7 +70,7 @@ func promptCreateShippingTariff() (*eclient.CreateShippingTariffRequest, error) 
 	var countryCode string
 	c := &survey.Select{
 		Message: "Shipping Code:",
-		Options: countryCodes,
+		Options: service.CountryCodes(),
 	}
 	survey.AskOne(c, &countryCode, survey.Required)
 	req.CountryCode = countryCode[0:2]
