@@ -1,6 +1,7 @@
 package eclient
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -23,14 +24,14 @@ type PriceRequest struct {
 	UnitPrice int `json:"unit_price"`
 }
 
-// PricesContainerResponse a container for a list of price lists.
-type PricesContainerResponse struct {
-	Object string           `json:"object"`
-	Data   []*PriceResponse `json:"data"`
+// PricesContainer a container for a list of price lists.
+type PricesContainer struct {
+	Object string   `json:"object"`
+	Data   []*Price `json:"data"`
 }
 
-// PriceResponse a single price.
-type PriceResponse struct {
+// Price a single price.
+type Price struct {
 	Object        string    `json:"object"`
 	ID            string    `json:"id"`
 	ProductID     string    `json:"product_id"`
@@ -45,7 +46,7 @@ type PriceResponse struct {
 }
 
 // SetPrices calls the API Service to update the categories tree.
-func (c *EcomClient) SetPrices(productID, priceListID string, prices []*PriceRequest) ([]*PriceResponse, error) {
+func (c *EcomClient) SetPrices(productID, priceListID string, prices []*PriceRequest) ([]*Price, error) {
 	container := PricesContainerRequest{
 		Object: "list",
 		Data:   prices,
@@ -76,9 +77,27 @@ func (c *EcomClient) SetPrices(productID, priceListID string, prices []*PriceReq
 		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
 	}
 
-	var response PricesContainerResponse
+	var response PricesContainer
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
 		return nil, errors.Wrapf(err, "json decode url %s", uri)
 	}
 	return response.Data, nil
+}
+
+// GetPrices calls the API service to attempt to retrieve all prices
+// for all products.
+func (c *EcomClient) GetPrices(ctx context.Context) ([]*Price, error) {
+	url := fmt.Sprintf("%s/prices", c.endpoint)
+	res, err := c.request(http.MethodGet, url, nil)
+	if err != nil {
+		return nil, errors.Wrapf(err,
+			"request(http.MethodGet, url=%q, nil)", url)
+	}
+	defer res.Body.Close()
+
+	var container PricesContainer
+	if err := json.NewDecoder(res.Body).Decode(&container); err != nil {
+		return nil, errors.Wrap(err, "decode")
+	}
+	return container.Data, nil
 }
