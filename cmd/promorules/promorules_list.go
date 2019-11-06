@@ -67,8 +67,15 @@ func NewCmdPromoRulesList() *cobra.Command {
 				} else {
 					endAt = p.EndAt.In(location).Format(timeDisplayFormat)
 				}
-				// fmt.Printf("#%+v", p)
-				fmt.Fprintf(tw, format, p.PromoRuleCode, p.Name, startAt, endAt, p.Type, p.Amount, p.Target)
+
+				var amount string
+				if p.Type == "percentage" {
+					amount = fmt.Sprintf("%.2f%%", float64(p.Amount)/100.0)
+				} else {
+					amount = fmt.Sprintf("£%.4f", float64(p.Amount)/10000.0)
+				}
+				fmt.Fprintf(tw, format, p.PromoRuleCode, p.Name, startAt,
+					endAt, p.Type, amount, p.Target)
 			}
 			tw.Flush()
 		},

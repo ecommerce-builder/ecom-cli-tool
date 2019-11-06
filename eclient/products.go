@@ -204,7 +204,6 @@ func (c *EcomClient) DeleteProduct(ctx context.Context, productID string) error 
 	}
 	defer res.Body.Close()
 
-	fmt.Println(res.StatusCode)
 	if res.StatusCode == 204 {
 		return nil
 	}

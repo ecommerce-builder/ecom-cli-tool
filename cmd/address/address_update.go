@@ -50,9 +50,6 @@ func NewCmdAddressUpdate() *cobra.Command {
 				os.Exit(1)
 			}
 
-			fmt.Printf("%#v\n", addr)
-			fmt.Println("----")
-
 			req, err := promptUpdateAddress(addr)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%v\n", err)

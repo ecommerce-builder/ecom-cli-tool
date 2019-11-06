@@ -159,10 +159,6 @@ func (c *EcomClient) UpdateAddress(ctx context.Context, addrID string, req *Upda
 		return nil, errors.Wrapf(err, "json marshal: %v", req)
 	}
 
-	fmt.Println("----")
-	fmt.Printf("%v\n", string(request))
-	fmt.Println("----")
-
 	body := strings.NewReader(string(request))
 	url := c.endpoint + "/addresses/" + addrID
 	res, err := c.request(http.MethodPatch, url, body)

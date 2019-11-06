@@ -80,7 +80,7 @@ func showPromoRule(promoRule *eclient.PromoRule) {
 	if promoRule.Type == "percentage" {
 		fmt.Fprintf(tw, "%v\t%.2f%%\t\n", "Amount:", float64(promoRule.Amount)/100.0)
 	} else {
-		fmt.Fprintf(tw, "%v\t%.4f\t\n", "Amount", float64(promoRule.Amount)/100.0)
+		fmt.Fprintf(tw, "%v\t£%.4f\t\n", "Amount", float64(promoRule.Amount)/10000.0)
 	}
 
 	var startAt, endAt string

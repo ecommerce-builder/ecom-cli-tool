@@ -75,9 +75,6 @@ func NewCmdPCRelationsApply() *cobra.Command {
 			}
 
 			for path, productset := range relationships.Rels {
-				// fmt.Printf("%#v\n", path)
-				// fmt.Printf("%#v\n", productset)
-
 				if _, ok := categoryPathToID[path]; !ok {
 					fmt.Fprintf(os.Stderr, "Category path %s not found.\n", path)
 				}
