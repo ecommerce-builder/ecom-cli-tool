@@ -35,7 +35,8 @@ func NewCmdProductsApply() *cobra.Command {
 			}
 
 			// load all price lists
-			priceLists, err := client.GetPriceLists()
+			ctx := context.Background()
+			priceLists, err := client.GetPriceLists(ctx)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
@@ -98,7 +99,7 @@ func findProductBySKU(products []*eclient.ProductResponse, sku string) *eclient.
 	return nil
 }
 
-func applyProduct(ec *eclient.EcomClient, products []*eclient.ProductResponse, priceLists []*eclient.PriceListResponse, filename string) error {
+func applyProduct(ec *eclient.EcomClient, products []*eclient.ProductResponse, priceLists []*eclient.PriceList, filename string) error {
 	// create a map of priceListCode -> priceListID
 	priceListCodeToID := make(map[string]string)
 	for _, p := range priceLists {

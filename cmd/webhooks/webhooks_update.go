@@ -23,7 +23,7 @@ func NewCmdWebhooksUpdate() *cobra.Command {
 	}
 	var cmd = &cobra.Command{
 		Use:   "update <webhook_id>",
-		Short: "Get a webhook",
+		Short: "Update a webhook",
 		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			current := cfgs.Configurations[curCfg]
