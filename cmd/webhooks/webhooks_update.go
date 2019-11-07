@@ -33,7 +33,7 @@ func NewCmdWebhooksUpdate() *cobra.Command {
 				os.Exit(1)
 			}
 
-			// promo_rule_code to id
+			// webhook_id command parameter
 			webhookID := args[0]
 			if !cmdvalidate.IsValidUUID(webhookID) {
 				fmt.Fprintf(os.Stderr, "webhook_id must be a valid v4 uuid\n")

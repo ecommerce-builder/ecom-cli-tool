@@ -12,23 +12,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func isValidEndpoint(endpoint string, valid []string) (bool, error) {
-	if len(valid) == 0 {
-		return true, nil
-	}
-	url, err := url.Parse(endpoint)
-	if err != nil {
-		return false, err
-	}
-	ephost := url.Hostname()
-	for _, s := range valid {
-		if s == ephost {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
 // NewCmdCategoriesTreeApply returns new initialized instance of apply sub command
 func NewCmdCategoriesTreeApply() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
@@ -98,4 +81,21 @@ func buildRequest(root *eclient.CategoryYAML) *eclient.CategoryRequest {
 	}
 
 	return &tree
+}
+
+func isValidEndpoint(endpoint string, valid []string) (bool, error) {
+	if len(valid) == 0 {
+		return true, nil
+	}
+	url, err := url.Parse(endpoint)
+	if err != nil {
+		return false, err
+	}
+	ephost := url.Hostname()
+	for _, s := range valid {
+		if s == ephost {
+			return true, nil
+		}
+	}
+	return false, nil
 }
