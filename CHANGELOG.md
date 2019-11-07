@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.25.0 (Thu, 7 Nov 2019)
++ devekeys delete sub command.
++ pricelist sub command create, delete, get, list and update.
+
 ## v0.24.1 (Thu, 7 Nov 2019)
 + Inventory managment including create, get, list, update, batch update and delete.
 + Example YAML file for inventory batch update.
