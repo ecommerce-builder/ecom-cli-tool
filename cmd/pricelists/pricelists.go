@@ -7,9 +7,13 @@ import (
 // NewCmdPriceLists returns new initialized instance of pricelist sub command
 func NewCmdPriceLists() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:   "price-lists",
+		Use:   "pricelists",
 		Short: "Price list management",
 	}
+	cmd.AddCommand(NewCmdPriceListsCreate())
+	cmd.AddCommand(NewCmdPriceListsGet())
 	cmd.AddCommand(NewCmdPriceListsList())
+	cmd.AddCommand(NewCmdPriceListUpdate())
+	cmd.AddCommand(NewCmdPriceListsDelete())
 	return cmd
 }

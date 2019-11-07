@@ -1,8 +1,28 @@
 package service
 
+import (
+	"fmt"
+	"os"
+	"time"
+)
+
 var countryCodes []string
 
+// Location contains the London timezone
+var Location *time.Location
+
+// TimeDisplayFormat is the standard format for output.
+const TimeDisplayFormat = "2006-01-02 15:04"
+
 func init() {
+	var err error
+	Location, err = time.LoadLocation("Europe/London")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "time.LoadLocation(%q) failed: %+v",
+			"Europe/London", err.Error())
+		return
+	}
+
 	countryCodes = []string{
 		"UK - United Kingdom",
 		"AT - Austria",

@@ -4,23 +4,23 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"text/tabwriter"
 
 	"github.com/ecommerce-builder/ecom-cli-tool/configmgr"
 	"github.com/ecommerce-builder/ecom-cli-tool/eclient"
 	"github.com/spf13/cobra"
 )
 
-// NewCmdPriceListsList returns new initialized instance of the get sub command
-func NewCmdPriceListsList() *cobra.Command {
+// NewCmdPriceListsGet returns new initialized instance of the get sub command
+func NewCmdPriceListsGet() *cobra.Command {
 	cfgs, curCfg, err := configmgr.GetCurrentConfig()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%+v\n", err)
 		os.Exit(1)
 	}
 	var cmd = &cobra.Command{
-		Use:   "list",
-		Short: "list price lists",
+		Use:   "get <price_list_code>",
+		Short: "Get price list",
+		Args:  cobra.ExactArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			current := cfgs.Configurations[curCfg]
 			client := eclient.New(current.Endpoint)
@@ -29,39 +29,32 @@ func NewCmdPriceListsList() *cobra.Command {
 				os.Exit(1)
 			}
 
+			priceListCode := args[0]
 			ctx := context.Background()
 			priceLists, err := client.GetPriceLists(ctx)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%+v\n", err)
 				os.Exit(1)
 			}
-
-			format := "%v\t%v\t%v\t%v\t%v\t%v\t\n"
-			tw := new(tabwriter.Writer).Init(os.Stdout, 0, 8, 2, ' ', 0)
-			fmt.Fprintf(tw, format,
-				"Price List Code",
-				"Currency Code",
-				"Strategy",
-				"Inc Tax",
-				"Name",
-				"Description")
-			fmt.Fprintf(tw, format,
-				"---------------",
-				"-------------",
-				"--------",
-				"-------",
-				"----",
-				"-----------")
+			var priceListID string
 			for _, v := range priceLists {
-				fmt.Fprintf(tw, format,
-					v.PriceListCode,
-					v.CurrencyCode,
-					v.Strategy,
-					v.IncTax,
-					v.Name,
-					v.Description)
+				if v.PriceListCode == priceListCode {
+					priceListID = v.ID
+					break
+				}
 			}
-			tw.Flush()
+
+			priceList, err := client.GetPriceList(ctx, priceListID)
+			if err == eclient.ErrProductNotFound {
+				fmt.Printf("price list %s not found.\n", priceListCode)
+				os.Exit(0)
+			}
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%+v\n", err)
+				os.Exit(1)
+			}
+
+			showPriceList(priceList)
 		},
 	}
 	return cmd
