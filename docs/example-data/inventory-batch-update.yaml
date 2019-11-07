@@ -1,0 +1,10 @@
+inventory:
+- sku: TVI7T41TB
+  onhand: 10
+  overselling: true
+- sku: WLPTZHKD
+  onhand: 24
+  overselling: false
+- sku: USBNC720M
+  onhand: 45
+  overselling: true

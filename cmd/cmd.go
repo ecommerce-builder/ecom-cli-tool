@@ -6,11 +6,12 @@ import (
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/categoriestree"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/coupons"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/devkeys"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/inventory"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/pcrelations"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/ppagroups"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/ppassocs"
-	"github.com/ecommerce-builder/ecom-cli-tool/cmd/prices"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/pricelists"
+	"github.com/ecommerce-builder/ecom-cli-tool/cmd/prices"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/products"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/profiles"
 	"github.com/ecommerce-builder/ecom-cli-tool/cmd/promorules"
@@ -35,10 +36,10 @@ func NewEcomCmd() *cobra.Command {
 	cmd.AddCommand(address.NewCmdAddress())
 	cmd.AddCommand(carts.NewCmdCarts())
 	cmd.AddCommand(coupons.NewCmdCoupons())
-	cmd.AddCommand(pcrelations.NewCmdPCRelations())
 	cmd.AddCommand(categoriestree.NewCmdCategoriesTree())
-	cmd.AddCommand(users.NewCmdUsers())
 	cmd.AddCommand(devkeys.NewCmdDevKeys())
+	cmd.AddCommand(inventory.NewCmdInventory())
+	cmd.AddCommand(pcrelations.NewCmdPCRelations())
 	cmd.AddCommand(products.NewCmdProducts())
 	cmd.AddCommand(ppassocs.NewCmdPPAssocs())
 	cmd.AddCommand(ppagroups.NewCmdPPAGroups())
@@ -47,6 +48,7 @@ func NewEcomCmd() *cobra.Command {
 	cmd.AddCommand(profiles.NewCmdProfiles())
 	cmd.AddCommand(promorules.NewCmdPromoRules())
 	cmd.AddCommand(tariffs.NewCmdShippingTariffsRules())
+	cmd.AddCommand(users.NewCmdUsers())
 	cmd.AddCommand(webhooks.NewCmdWebhooks())
 	cmd.AddCommand(NewCmdCompletion())
 	cmd.AddCommand(NewCmdSysInfo())
