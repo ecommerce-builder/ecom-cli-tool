@@ -34,7 +34,7 @@ func (c *EcomClient) CreateAdmin(email, passwd, first, last string) (*UserRespon
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 {
-		return nil, fmt.Errorf("HTTP POST to %q return %s: %w", uri, res.Status, err)
+		return nil, fmt.Errorf("HTTP POST to %q return %s", uri, res.Status)
 	}
 	user := UserResponse{}
 	err = json.NewDecoder(res.Body).Decode(&user)

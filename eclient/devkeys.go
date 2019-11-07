@@ -8,7 +8,12 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 )
+
+// ErrDeveloperKeyNotFound error
+var ErrDeveloperKeyNotFound = errors.New("developer key not found")
 
 // DevKeyRequest request body
 type DevKeyRequest struct {
@@ -53,7 +58,7 @@ func (c *EcomClient) CreateDeveloperKey(ctx context.Context, d *DevKeyRequest) (
 		if err := dec.Decode(&e); err != nil {
 			return nil, fmt.Errorf("decode: %w", err)
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var devKey DevKeyResponse
@@ -85,4 +90,29 @@ func (c *EcomClient) GetDeveloperKeys(ctx context.Context, userID string) ([]*De
 		return nil, fmt.Errorf("decode: %w", err)
 	}
 	return container.Data, nil
+}
+
+// DeleteDeveloperKey calls the API service to attempt to delete a developer
+// key by id.
+func (c *EcomClient) DeleteDeveloperKey(ctx context.Context, devKeyID string) error {
+	url := fmt.Sprintf("%s/developer-keys/%s", c.endpoint, devKeyID)
+	res, err := c.request(http.MethodDelete, url, nil)
+	if err != nil {
+		return errors.Wrapf(err, "request failed url=%q", url)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode >= 400 {
+		var e badRequestResponse
+		dec := json.NewDecoder(res.Body)
+		dec.DisallowUnknownFields()
+		if err := dec.Decode(&e); err != nil {
+			return errors.Wrap(err, "decode")
+		}
+		if e.Code == "developer-keys/developer-key-not-found" {
+			return ErrDeveloperKeyNotFound
+		}
+		return fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
+	}
+	return nil
 }

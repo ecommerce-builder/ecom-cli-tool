@@ -52,7 +52,7 @@ func (c *EcomClient) UpdateCategoriesTree(cats *CategoryRequest) error {
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
 			return fmt.Errorf("decode: %w", err)
 		}
-		return fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return fmt.Errorf("Status: %d, Code: %s, Message: %s", e.Status, e.Code, e.Message)
 	}
 	return nil
 }
@@ -78,7 +78,7 @@ func (c *EcomClient) GetCategoriesTree() (*CategoryTreeResponse, error) {
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
 			return nil, fmt.Errorf("client decode error: %w", err)
 		}
-		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var tree CategoryTreeResponse

@@ -83,7 +83,7 @@ func (c *EcomClient) CreatePromoRule(ctx context.Context, p *PromoRuleRequest) (
 		if err := dec.Decode(&e); err != nil {
 			return nil, fmt.Errorf("%w: client decode error", err)
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var promoRule PromoRule
@@ -113,7 +113,7 @@ func (c *EcomClient) GetPromoRule(ctx context.Context, promoRuleID string) (*Pro
 		if e.Code == "promo-rules/promo-rule-not-found" {
 			return nil, ErrPromoRuleNotFound
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var p PromoRule

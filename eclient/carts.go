@@ -58,10 +58,10 @@ type CartProductRequest struct {
 
 // CreateCart calls the API service to attempt to create a new shopping cart.
 func (c *EcomClient) CreateCart(ctx context.Context) (*Cart, error) {
-	url := c.endpoint + "/carts"
+	url := fmt.Sprintf("%s/carts", c.endpoint)
 	res, err := c.request(http.MethodPost, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request", err)
+		return nil, errors.Wrapf(err, "request(http.MethodPost, url=%q, nil)", url)
 	}
 	defer res.Body.Close()
 
@@ -70,14 +70,14 @@ func (c *EcomClient) CreateCart(ctx context.Context) (*Cart, error) {
 		dec := json.NewDecoder(res.Body)
 		dec.DisallowUnknownFields()
 		if err := dec.Decode(&e); err != nil {
-			return nil, fmt.Errorf("decode: %w", err)
+			return nil, errors.Wrap(err, "decode")
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var cart Cart
 	if err = json.NewDecoder(res.Body).Decode(&cart); err != nil {
-		return nil, fmt.Errorf("%w: decode", err)
+		return nil, errors.Wrap(err, "decode")
 	}
 	return &cart, nil
 }
@@ -87,34 +87,33 @@ func (c *EcomClient) CreateCart(ctx context.Context) (*Cart, error) {
 func (c *EcomClient) CartAddProduct(ctx context.Context, req *CartProductRequest) (*CartProduct, error) {
 	body := new(bytes.Buffer)
 	if err := json.NewEncoder(body).Encode(&req); err != nil {
-		return nil, fmt.Errorf("%w: encode", err)
+		return nil, errors.Wrap(err, "encode")
 	}
-	url := c.endpoint + "/carts-products"
+	url := fmt.Sprintf("%s/carts-products", c.endpoint)
 	res, err := c.request(http.MethodPost, url, body)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request", err)
+		return nil, errors.Wrapf(err, "request(http.MethodPost, url=%q, body)", url)
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 && res.StatusCode < 500 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return nil, fmt.Errorf("decode: %w", err)
+			return nil, errors.Wrap(err, "decode")
 		}
-
 		if e.Code == "carts/cart-not-found" {
 			return nil, ErrCartNotFound
 		}
 		if e.Code == "carts/cart-product-exists" {
 			return nil, ErrCartProductExists
 		}
-		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, Code: %s, Message: %s", e.Status, e.Code, e.Message)
 	}
 
 	if res.StatusCode == 201 {
 		var cartProduct CartProduct
 		if err := json.NewDecoder(res.Body).Decode(&cartProduct); err != nil {
-			return nil, fmt.Errorf("decode: %w", err)
+			return nil, errors.Wrap(err, "decode")
 		}
 		return &cartProduct, nil
 	}
@@ -125,7 +124,6 @@ func (c *EcomClient) CartAddProduct(ctx context.Context, req *CartProductRequest
 func (c *EcomClient) GetCartProducts(ctx context.Context, cartID string) ([]*CartProduct, error) {
 	v := url.Values{}
 	v.Set("cart_id", cartID)
-
 	url := url.URL{
 		Scheme:   "https",
 		Host:     c.hostname,
@@ -134,13 +132,13 @@ func (c *EcomClient) GetCartProducts(ctx context.Context, cartID string) ([]*Car
 	}
 	res, err := c.request(http.MethodGet, url.String(), nil)
 	if err != nil {
-		return nil, fmt.Errorf("request failed: %w", err)
+		return nil, errors.Wrapf(err, "request(http.MethodGet, url=%q, nil)", url.String())
 	}
 	defer res.Body.Close()
 
 	var container CartProductsContainer
 	if err := json.NewDecoder(res.Body).Decode(&container); err != nil {
-		return nil, fmt.Errorf("decode failed: %w", err)
+		return nil, errors.Wrap(err, "decode")
 	}
 	return container.Data, nil
 }
@@ -155,35 +153,33 @@ func (c *EcomClient) UpdateCartProduct(ctx context.Context, cartProductID string
 
 	body := new(bytes.Buffer)
 	if err := json.NewEncoder(body).Encode(&req); err != nil {
-		return nil, fmt.Errorf("%w: encode", err)
+		return nil, errors.Wrap(err, "encode")
 	}
 	url := fmt.Sprintf("%s/carts-products/%s", c.endpoint, cartProductID)
 	res, err := c.request(http.MethodPatch, url, body)
 	if err != nil {
-		return nil, fmt.Errorf("%w: request", err)
+		return nil, errors.Wrap(err, "request")
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 && res.StatusCode < 500 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return nil, fmt.Errorf("decode: %w", err)
+			return nil, errors.Wrap(err, "decode")
 		}
-
 		if e.Code == "carts/cart-product-not-found" {
 			return nil, ErrCartProductNotFound
 		}
-		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, Code: %s, Message: %s", e.Status, e.Code, e.Message)
 	}
 
 	if res.StatusCode == 200 {
 		var cartProduct CartProduct
 		if err := json.NewDecoder(res.Body).Decode(&cartProduct); err != nil {
-			return nil, errors.Wrapf(err, "json decode url %s", url)
+			return nil, errors.Wrapf(err, "json decode")
 		}
 		return &cartProduct, nil
 	}
-
 	return nil, fmt.Errorf("unknown response status code %d", res.StatusCode)
 }
 
@@ -192,26 +188,24 @@ func (c *EcomClient) CartsRemoveProduct(ctx context.Context, cartProductID strin
 	url := fmt.Sprintf("%s/carts-products/%s", c.endpoint, cartProductID)
 	res, err := c.request(http.MethodDelete, url, nil)
 	if err != nil {
-		return fmt.Errorf("%w: request", err)
+		return errors.Wrap(err, "request")
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 && res.StatusCode < 500 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return fmt.Errorf("decode: %w", err)
+			return errors.Wrap(err, "decode")
 		}
-
 		if e.Code == "carts/cart-product-not-found" {
 			return ErrCartProductNotFound
 		}
-		return fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	if res.StatusCode == 204 {
 		return nil
 	}
-
 	return fmt.Errorf("unknown response status code %d", res.StatusCode)
 }
 
@@ -220,7 +214,6 @@ func (c *EcomClient) CartsRemoveProduct(ctx context.Context, cartProductID strin
 func (c *EcomClient) EmptyCartProducts(ctx context.Context, cartID string) error {
 	v := url.Values{}
 	v.Set("cart_id", cartID)
-
 	url := url.URL{
 		Scheme:   "https",
 		Host:     c.hostname,
@@ -229,25 +222,23 @@ func (c *EcomClient) EmptyCartProducts(ctx context.Context, cartID string) error
 	}
 	res, err := c.request(http.MethodDelete, url.String(), nil)
 	if err != nil {
-		return fmt.Errorf("request failed: %w", err)
+		return errors.Wrap(err, "request")
 	}
 	defer res.Body.Close()
 
 	if res.StatusCode >= 400 && res.StatusCode < 500 {
 		var e badRequestResponse
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return fmt.Errorf("decode: %w", err)
+			return errors.Wrap(err, "decode")
 		}
-
 		if e.Code == "carts/cart-not-found" {
 			return ErrCartNotFound
 		}
-		return fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return fmt.Errorf("Status: %d, Code: %s, Message: %s", e.Status, e.Code, e.Message)
 	}
 
 	if res.StatusCode == 204 {
 		return nil
 	}
-
 	return fmt.Errorf("unknown response status code %d", res.StatusCode)
 }

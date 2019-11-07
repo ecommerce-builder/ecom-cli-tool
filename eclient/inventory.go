@@ -125,7 +125,7 @@ func (c *EcomClient) UpdateInventory(ctx context.Context, invID string, req *Upd
 		if err := dec.Decode(&e); err != nil {
 			return nil, errors.Wrapf(err, "client decode", err)
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var v Inventory
@@ -162,7 +162,7 @@ func (c *EcomClient) UpdateInventoryBatch(ctx context.Context, inv []*InventoryB
 		if err := dec.Decode(&e); err != nil {
 			return nil, errors.Wrapf(err, "client decode", err)
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var container InventoryContainer

@@ -96,7 +96,7 @@ func (c *EcomClient) UpdateProductCategoryRelations(rels []*CreateProductsCatego
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
 			return fmt.Errorf("client decode error: %w", err)
 		}
-		return fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return fmt.Errorf("Status: %d, Code: %s, Message: %s", e.Status, e.Code, e.Message)
 	}
 	return nil
 }

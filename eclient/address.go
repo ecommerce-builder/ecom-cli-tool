@@ -87,7 +87,7 @@ func (c *EcomClient) CreateAddress(ctx context.Context, req *CreateAddressReques
 		if err := dec.Decode(&e); err != nil {
 			return nil, fmt.Errorf("%w: client decode", err)
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var address Address
@@ -117,7 +117,7 @@ func (c *EcomClient) GetAddress(ctx context.Context, addrID string) (*Address, e
 		if e.Code == "addresses/address-not-found" {
 			return nil, ErrAddressNotFound
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var v Address
@@ -175,7 +175,7 @@ func (c *EcomClient) UpdateAddress(ctx context.Context, addrID string, req *Upda
 		if e.Code == "addresses/address-not-found" {
 			return nil, ErrAddressNotFound
 		}
-		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var v Address
@@ -204,7 +204,7 @@ func (c *EcomClient) DeleteAddress(ctx context.Context, addrID string) error {
 		if e.Code == "addresses/address-not-found" {
 			return ErrAddressNotFound
 		}
-		return fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 	return nil
 }

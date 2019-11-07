@@ -50,7 +50,7 @@ func (c *EcomClient) GetCategories() ([]*Category, error) {
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
 			return nil, fmt.Errorf("client decode error: %w", err)
 		}
-		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var categoryContainer CategoryContainer

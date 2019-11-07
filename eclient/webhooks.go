@@ -79,7 +79,7 @@ func (c *EcomClient) CreateWebhook(ctx context.Context, p *CreateWebhookRequest)
 		if err := dec.Decode(&e); err != nil {
 			return nil, fmt.Errorf("%w: client decode", err)
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var webhook WebhookResponse
@@ -148,7 +148,7 @@ func (c *EcomClient) UpdateWebhook(ctx context.Context, webhookID string, req *U
 		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
 			return nil, fmt.Errorf("decode: %w", err)
 		}
-		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("Status: %d, Code: %s, Message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var w WebhookResponse

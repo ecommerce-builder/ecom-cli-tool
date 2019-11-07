@@ -61,7 +61,7 @@ func (c *EcomClient) CreatePPAGroup(ctx context.Context, g *CreatePAGroupRequest
 		if err := dec.Decode(&e); err != nil {
 			return nil, fmt.Errorf("client decode: %w", err)
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var ppaGroup PPAssocGroupResponse

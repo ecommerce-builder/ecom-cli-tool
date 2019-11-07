@@ -64,7 +64,7 @@ func (c *EcomClient) CreateShippingTariff(ctx context.Context, req *CreateShippi
 		if err := dec.Decode(&e); err != nil {
 			return nil, fmt.Errorf("%w: client decode", err)
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var tariff ShippingTariff

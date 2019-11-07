@@ -63,7 +63,7 @@ func (c *EcomClient) CreateUser(ctx context.Context, u *CreateUserRequest) (*Use
 		if err := dec.Decode(&e); err != nil {
 			return nil, fmt.Errorf("%w: client decode error", err)
 		}
-		return nil, fmt.Errorf("status: %d, code: %s, message: %s: %w", e.Status, e.Code, e.Message, err)
+		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
 
 	var user UserResponse
