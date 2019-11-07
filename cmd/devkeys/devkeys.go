@@ -12,5 +12,6 @@ func NewCmdDevKeys() *cobra.Command {
 	}
 	cmd.AddCommand(NewCmdDevKeysCreate())
 	cmd.AddCommand(NewCmdDevKeysList())
+	cmd.AddCommand(NewCmdDevKeysDelete())
 	return cmd
 }
