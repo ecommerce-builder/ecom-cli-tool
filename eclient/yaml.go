@@ -2,6 +2,18 @@ package eclient
 
 import "time"
 
+// InventoryBatchContainerYAML main container for inventory YAML file
+type InventoryBatchContainerYAML struct {
+	Inventory []*InventoryBatchYAML `yaml:"inventory"`
+}
+
+// InventoryBatchYAML individual update
+type InventoryBatchYAML struct {
+	SKU         string `yaml:"sku"`
+	Onhand      int    `yaml:"onhand"`
+	Overselling bool   `yaml:"overeselling"`
+}
+
 // A CatalogYAML contains a single root node of the catalog.
 type CatalogYAML struct {
 	Endpoints []string     `yaml:"endpoints"`
