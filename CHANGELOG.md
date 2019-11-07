@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.24.1 (Thu, 7 Nov 2019)
++ Inventory managment including create, get, list, update, batch update and delete.
++ Example YAML file for inventory batch update.
+
 ## v0.23.0 (Tue, 5 Nov 2019)
 + Coupon management command.
 
