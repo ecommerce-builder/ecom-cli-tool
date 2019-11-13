@@ -1,4 +1,6 @@
 # CHANGELOG
+## v0.26.0 (Wed, 13 Nov 2019)
++ Offers sub command.
 
 ## v0.25.0 (Thu, 7 Nov 2019)
 + devekeys delete sub command.
