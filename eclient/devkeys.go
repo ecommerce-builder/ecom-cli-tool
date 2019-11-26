@@ -74,7 +74,7 @@ func (c *EcomClient) GetDeveloperKeys(ctx context.Context, userID string) ([]*De
 	v.Set("user_id", userID)
 
 	url := url.URL{
-		Scheme:   "https",
+		Scheme:   c.scheme,
 		Host:     c.hostname,
 		Path:     "developer-keys",
 		RawQuery: v.Encode(),
