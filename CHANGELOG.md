@@ -1,4 +1,8 @@
 # CHANGELOG
+## v0.27.0 (Wed, 27 Nov 2019)
++ Order management command get and list.
++ Update Go deps.
+
 ## v0.26.0 (Wed, 13 Nov 2019)
 + Offers sub command.
 
