@@ -125,7 +125,7 @@ func (c *EcomClient) GetCartProducts(ctx context.Context, cartID string) ([]*Car
 	v := url.Values{}
 	v.Set("cart_id", cartID)
 	url := url.URL{
-		Scheme:   "https",
+		Scheme:   c.scheme,
 		Host:     c.hostname,
 		Path:     "carts-products",
 		RawQuery: v.Encode(),
@@ -215,7 +215,7 @@ func (c *EcomClient) EmptyCartProducts(ctx context.Context, cartID string) error
 	v := url.Values{}
 	v.Set("cart_id", cartID)
 	url := url.URL{
-		Scheme:   "https",
+		Scheme:   c.scheme,
 		Host:     c.hostname,
 		Path:     "carts-products",
 		RawQuery: v.Encode(),

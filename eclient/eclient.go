@@ -24,7 +24,9 @@ var userAgent string
 // EcomClient structure.
 type EcomClient struct {
 	endpoint string
+	scheme   string
 	hostname string
+	port     string
 	client   *http.Client
 	jwt      string
 }
@@ -110,7 +112,9 @@ func New(endpoint string) *EcomClient {
 
 	return &EcomClient{
 		endpoint: endpoint,
-		hostname: url.Hostname(),
+		scheme: url.Scheme,
+		hostname: url.Host,
+		port: url.Port(),
 		client:   client,
 	}
 }

@@ -133,7 +133,7 @@ func (c *EcomClient) GetAddressesByUser(ctx context.Context, userID string) ([]*
 	v := url.Values{}
 	v.Set("user_id", userID)
 	url := url.URL{
-		Scheme:   "https",
+		Scheme:   c.scheme,
 		Host:     c.hostname,
 		Path:     "addresses",
 		RawQuery: v.Encode(),

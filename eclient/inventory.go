@@ -123,7 +123,7 @@ func (c *EcomClient) UpdateInventory(ctx context.Context, invID string, req *Upd
 		dec := json.NewDecoder(res.Body)
 		dec.DisallowUnknownFields()
 		if err := dec.Decode(&e); err != nil {
-			return nil, errors.Wrapf(err, "client decode", err)
+			return nil, errors.Wrap(err, "client decode")
 		}
 		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}
@@ -160,7 +160,7 @@ func (c *EcomClient) UpdateInventoryBatch(ctx context.Context, inv []*InventoryB
 		dec := json.NewDecoder(res.Body)
 		dec.DisallowUnknownFields()
 		if err := dec.Decode(&e); err != nil {
-			return nil, errors.Wrapf(err, "client decode", err)
+			return nil, errors.Wrapf(err, "client decode")
 		}
 		return nil, fmt.Errorf("status: %d, code: %s, message: %s", e.Status, e.Code, e.Message)
 	}

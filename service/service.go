@@ -67,3 +67,7 @@ func TitleFromCountryCode(match string) string {
 	}
 	return ""
 }
+
+func IntPriceToString(p int) string {
+	return fmt.Sprintf("£%.4f", float64(p)/10000.0)
+}
