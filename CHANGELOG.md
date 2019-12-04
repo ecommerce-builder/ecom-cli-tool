@@ -1,4 +1,7 @@
 # CHANGELOG
+## v0.28.0 (Wed, 4 Dec 2019)
++ `ecom orders create` command for both guest and registered users.
+
 ## v0.27.0 (Wed, 27 Nov 2019)
 + Order management command get and list.
 + Update Go deps.
