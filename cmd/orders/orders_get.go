@@ -62,12 +62,9 @@ func showOrder(v *eclient.Order) {
 	fmt.Fprintf(tw, format, "Order ID:", v.OrderID)
 	fmt.Fprintf(tw, format, "Status:", v.Status)
 	fmt.Fprintf(tw, format, "Payment:", v.Payment)
-	fmt.Fprintf(tw, format, "Contact name:", v.ContactName)
-	fmt.Fprintf(tw, format, "Email:", v.Email)
+	fmt.Fprintf(tw, format, "Contact name:", v.User.ContactName)
+	fmt.Fprintf(tw, format, "Email:", v.User.Email)
 	fmt.Fprintf(tw, format, "Currency:", v.Currency)
-	fmt.Fprintf(tw, format, "Total ex VAT:", service.IntPriceToString(v.TotalExVAT))
-	fmt.Fprintf(tw, format, "VAT Total:", service.IntPriceToString(v.VATTotal))
-	fmt.Fprintf(tw, format, "Total inc VAT:", service.IntPriceToString(v.TotalIncVAT))
 	fmt.Fprintf(tw, format, "Created:", v.Created.In(service.Location).Format(service.TimeDisplayFormat))
 	fmt.Fprintf(tw, format, "Modified:", v.Modified.In(service.Location).Format(service.TimeDisplayFormat))
 
@@ -85,40 +82,42 @@ func showOrder(v *eclient.Order) {
 	fmt.Fprintf(tw, format, "Order Items", "")
 	fmt.Fprintf(tw, format, "-----------", "")
 
-	fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t\n",
+	fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\t\n",
 		"Qty",
 		"SKU",
-		"Currency",
 		"Unit price",
 		"Tax Code",
 		"VAT",
 		"Total inc VAT")
-	fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t\n",
+	fmt.Fprintf(tw, "%s\t%s\t%s\t%s\t%s\t%s\t\n",
 		"---",
 		"---",
-		"--------",
 		"----------",
 		"--------",
 		"---",
 		"------------")
 	for _, v := range v.Items {
-		fmt.Fprintf(tw, "%v\t%v\t%v\t%v\t%v\t%v\t%v\t\n",
+		fmt.Fprintf(tw, "%v\t%v\t%v\t%v\t%v\t%v\t\n",
 			v.Qty,
 			v.SKU,
-			v.Currency,
 			service.IntPriceToString(v.UnitPrice),
 			v.TaxCode,
 			service.IntPriceToString(v.VAT),
 			service.IntPriceToString(v.VAT+v.UnitPrice))
 	}
-
-	fmt.Fprintf(tw, "%v\t%v\t%v\t%v\t%v\t%v\t%v\t\n",
-		"",
-		"",
-		"",
-		service.IntPriceToString(v.TotalExVAT),
-		"",
-		service.IntPriceToString(v.VATTotal),
+	fmt.Fprintf(tw, "%v\t%v\t%v\t%v\t%v\t%v\t\n",
+		"", "", "", "", "", "")
+	fmt.Fprintf(tw, "%v\t%v\t%v\t%v\t%v\t%v\t\n",
+		"", "", "", "",
+		"Subtotal",
+		service.IntPriceToString(v.TotalExVAT))
+	fmt.Fprintf(tw, "%v\t%v\t%v\t%v\t%v\t%v\t\n",
+		"", "", "", "",
+		"Total VAT",
+		service.IntPriceToString(v.VATTotal))
+	fmt.Fprintf(tw, "%v\t%v\t%v\t%v\t%v\t%v\t\n",
+		"", "", "", "",
+		"Total",
 		service.IntPriceToString(v.TotalIncVAT))
 	tw.Flush()
 }

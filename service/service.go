@@ -24,7 +24,7 @@ func init() {
 	}
 
 	countryCodes = []string{
-		"UK - United Kingdom",
+		"GB - United Kingdom",
 		"AT - Austria",
 		"BG - Bulgaria",
 		"CZ - Czechia",
@@ -68,6 +68,7 @@ func TitleFromCountryCode(match string) string {
 	return ""
 }
 
+// IntPriceToString converts integer to formatted price display string.
 func IntPriceToString(p int) string {
 	return fmt.Sprintf("£%.4f", float64(p)/10000.0)
 }
