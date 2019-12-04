@@ -10,6 +10,7 @@ func NewCmdOrders() *cobra.Command {
 		Use:   "orders",
 		Short: "Orders management",
 	}
+	cmd.AddCommand(NewCmdOrdersCreate())
 	cmd.AddCommand(NewCmdOrdersGet())
 	cmd.AddCommand(NewCmdOrdersList())
 	return cmd
