@@ -13,5 +13,6 @@ func NewCmdOrders() *cobra.Command {
 	cmd.AddCommand(NewCmdOrdersCreate())
 	cmd.AddCommand(NewCmdOrdersGet())
 	cmd.AddCommand(NewCmdOrdersList())
+	cmd.AddCommand(NewCmdOrdersStripeCheckout())
 	return cmd
 }

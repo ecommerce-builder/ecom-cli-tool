@@ -1,4 +1,9 @@
 # CHANGELOG
+## v0.29.0 (Wed, 11 Dec 2019)
++ 'ecom orders stripecheckout` for testing order checkout.
++ Added new events for web hooks.
++ Updates Go deps using Go 1.13.5
+
 ## v0.28.0 (Wed, 4 Dec 2019)
 + `ecom orders create` command for both guest and registered users.
 

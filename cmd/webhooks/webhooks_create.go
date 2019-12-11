@@ -17,11 +17,20 @@ const (
 	// EventServiceStarted event
 	EventServiceStarted string = "service.started"
 
+	// EventAddressCreated event
+	EventAddressCreated string = "address.created"
+
+	// EventAddressUpdated event
+	EventAddressUpdated string = "address.updated"
+
 	// EventUserCreated event
 	EventUserCreated string = "user.created"
 
 	// EventOrderCreated triggerred after an order has been placed.
 	EventOrderCreated string = "order.created"
+
+	// EventOrderUpdated event
+	EventOrderUpdated string = "order.updated"
 )
 
 // NewCmdWebhooksCreate returns new initialized instance of create sub command
@@ -97,6 +106,8 @@ func promptCreateWebhook() (*eclient.CreateWebhookRequest, error) {
 		Message: "Events:",
 		Options: []string{
 			EventServiceStarted,
+			EventAddressCreated,
+			EventAddressUpdated,
 			EventUserCreated,
 			EventOrderCreated,
 		},

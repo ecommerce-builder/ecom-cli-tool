@@ -103,8 +103,11 @@ func promptUpdateWebhook(url string, events []string, enabled bool) (*eclient.Up
 		Message: "Events:",
 		Options: []string{
 			EventServiceStarted,
+			EventAddressCreated,
+			EventAddressUpdated,
 			EventUserCreated,
 			EventOrderCreated,
+			EventOrderUpdated,
 		},
 		Default: events,
 	}
